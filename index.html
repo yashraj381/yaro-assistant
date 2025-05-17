@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Assistant App</title>
+</head>
+<body>
+  <h1>Welcome to My Assistant App</h1>
+  <p>Click anywhere to start seeing popup ads every 10 seconds.</p>
+
+  <!-- Popup Ad Script -->
+  <script type="text/javascript">
+    // URL for the popunder ad script (replace with real ad script as needed)
+    const POPUNDER_URL = "https://propu.sh/popunder-code.js";
+    let adInterval = null;
+    let adShown = false;
+
+    function showPopunder() {
+      const script = document.createElement('script');
+      script.src = POPUNDER_URL;
+      document.body.appendChild(script);
+    }
+
+    function startPopunderAds() {
+      if (adShown) return;
+      adShown = true;
+      showPopunder(); // Show first popunder immediately
+      adInterval = setInterval(showPopunder, 10000); // Show every 10 seconds
+      document.removeEventListener('click', startPopunderAds);
+    }
+
+    document.addEventListener('click', startPopunderAds);
+  </script>
+</body>
+</html>
