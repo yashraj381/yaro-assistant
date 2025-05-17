@@ -4,6 +4,68 @@
   <meta charset="UTF-8">
   <title>Your Assistant App</title>
 </head>
+  <head>
+  <meta charset="UTF-8">
+  <title>Your Assistant App</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fafc 0%, #dbeafe 100%);
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      color: #22223b;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #2563eb;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px #93c5fd77;
+      border-bottom: 2px solid #2563eb33;
+      padding-bottom: 0.5rem;
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: #374151;
+      margin-top: 0;
+      margin-bottom: 2rem;
+      text-align: center;
+      max-width: 480px;
+      line-height: 1.6;
+      background: #f1f5f9cc;
+      border-radius: 8px;
+      padding: 1.2rem 1rem;
+      box-shadow: 0 1px 6px #0001;
+      border-left: 4px solid #2563eb66;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.6rem;
+        max-width: 95vw;
+      }
+      p {
+        font-size: 1rem;
+        max-width: 95vw;
+        padding: 0.8rem 0.5rem;
+      }
+      body {
+        padding: 1rem 0;
+      }
+    }
+  </style>
+</head>
 <body>
   <h1>Welcome to My Assistant App</h1>
   <p>Click anywhere to start seeing popup ads every 10 seconds.</p>
