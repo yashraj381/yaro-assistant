@@ -1,0 +1,182 @@
+:root {
+  --font-main: 'Poppins', Arial, sans-serif;
+
+  --sos-gradient: linear-gradient(90deg, #ff3b30 0%, #ff9500 100%);
+  --safe-gradient: linear-gradient(90deg, #007aff 0%, #34c759 100%);
+  --card-bg: #f7f8fa;
+  --shadow: 0 2px 24px rgba(0,0,0,0.09);
+  --radius: 22px;
+  --accent: #ff3b30;
+  --text: #222;
+  --bg: #fff;
+
+  --night-bg: #181c24;
+  --night-card-bg: #212432;
+  --night-text: #f2f2f7;
+  --night-shadow: 0 2px 18px rgba(0,0,0,0.21);
+}
+
+body {
+  font-family: var(--font-main);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.night {
+  background: var(--night-bg);
+  color: var(--night-text);
+}
+
+#theme-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 10;
+}
+#toggle-btn {
+  background: var(--card-bg);
+  border: none;
+  border-radius: 50%;
+  width: 46px; height: 46px;
+  box-shadow: var(--shadow);
+  outline: none;
+  cursor: pointer;
+  font-size: 1.6rem;
+  transition: background 0.3s, box-shadow 0.2s;
+}
+body.night #toggle-btn { background: var(--night-card-bg); }
+
+main#app {
+  max-width: 410px;
+  margin: 0 auto;
+  padding: 44px 10px 20px 10px;
+  min-height: 100vh;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+  padding: 28px 22px;
+  transition: background 0.3s;
+}
+body.night .card { background: var(--night-card-bg); box-shadow: var(--night-shadow); }
+
+h1, h2 { margin: 0 0 12px 0; font-weight: 600; }
+
+input, select {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  border: none;
+  font-family: inherit;
+  width: 100%;
+  margin-bottom: 12px;
+  background: #f0f1f5;
+  font-size: 1rem;
+  outline: none;
+  box-shadow: 0 1px 6px #00000011;
+}
+body.night input, body.night select { background: #262a36; color: #fff; }
+
+button {
+  border: none;
+  outline: none;
+  border-radius: var(--radius);
+  padding: 14px 28px;
+  font: 600 1.1rem var(--font-main);
+  cursor: pointer;
+  margin-top: 8px;
+  box-shadow: var(--shadow);
+  background: var(--safe-gradient);
+  color: #fff;
+  transition: background 0.23s, box-shadow 0.13s, transform 0.12s;
+}
+
+button:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 5px #0002;
+}
+.sos-btn {
+  background: var(--sos-gradient);
+  font-size: 1.33rem;
+  border-radius: 999px;
+  width: 100%;
+  padding: 32px 0;
+  margin: 18px 0;
+  box-shadow: 0 3px 18px #ff3b3044;
+  letter-spacing: 2px;
+  transition: background 0.2s;
+  display: block;
+}
+
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.toggle-switch {
+  display: flex; align-items: center; gap: 10px;
+}
+.toggle-switch input[type="checkbox"] {
+  width: 38px; height: 22px;
+  accent-color: #34c759;
+}
+
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.alert-card {
+  background: var(--card-bg);
+  border-left: 6px solid #ff3b30;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 18px 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  animation: fadeIn 0.55s;
+}
+body.night .alert-card { background: var(--night-card-bg); }
+.alert-title {
+  font-weight: 600; font-size: 1.15rem;
+}
+.alert-time {
+  color: #888;
+  font-size: 0.98rem;
+}
+.alert-location {
+  color: #007aff;
+  text-decoration: underline;
+  font-size: 1.01rem;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(26px);}
+  to   { opacity: 1; transform: translateY(0);}
+}
+
+#toast {
+  position: fixed; bottom: 34px; left: 50%; transform: translateX(-50%);
+  background: #fff; color: #222;
+  padding: 15px 32px;
+  border-radius: 38px;
+  box-shadow: 0 1px 14px #0004;
+  font-weight: 600;
+  opacity: 0; pointer-events: none;
+  z-index: 120;
+  transition: opacity 0.3s;
+}
+body.night #toast { background: #23283b; color: #fff; }
+
+#toast.show { opacity: 1; pointer-events: all; }
+
+@media (max-width: 600px) {
+  main#app { max-width: 100vw; padding: 44px 1vw 18px 1vw; }
+  .card, .alert-card { padding: 19px 8px; }
+  h1 { font-size: 1.42rem; }
+}
