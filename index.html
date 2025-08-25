@@ -4,25 +4,490 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Suraksha – Family Safety App</title>
-  <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap"/>
-  <link rel="icon" href="assets/icon.png"/>
+  <style>
+    :root {
+      --font-main: 'Poppins', Arial, sans-serif;
+
+      --sos-gradient: linear-gradient(90deg, #ff3b30 0%, #ff9500 100%);
+      --safe-gradient: linear-gradient(90deg, #007aff 0%, #34c759 100%);
+      --card-bg: #f7f8fa;
+      --shadow: 0 2px 24px rgba(0,0,0,0.09);
+      --radius: 22px;
+      --accent: #ff3b30;
+      --text: #222;
+      --bg: #fff;
+
+      --night-bg: #181c24;
+      --night-card-bg: #212432;
+      --night-text: #f2f2f7;
+      --night-shadow: 0 2px 18px rgba(0,0,0,0.21);
+    }
+
+    body {
+      font-family: var(--font-main);
+      background: var(--bg);
+      color: var(--text);
+      margin: 0; padding: 0;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.night {
+      background: var(--night-bg);
+      color: var(--night-text);
+    }
+
+    #theme-toggle {
+      position: fixed; top: 16px; right: 16px; z-index: 10;
+    }
+    #toggle-btn {
+      background: var(--card-bg);
+      border: none;
+      border-radius: 50%;
+      width: 46px; height: 46px;
+      box-shadow: var(--shadow);
+      outline: none;
+      cursor: pointer;
+      font-size: 1.6rem;
+      transition: background 0.3s, box-shadow 0.2s;
+    }
+    body.night #toggle-btn { background: var(--night-card-bg); }
+
+    main#app {
+      max-width: 410px;
+      margin: 0 auto;
+      padding: 44px 10px 20px 10px;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      padding: 28px 22px;
+      transition: background 0.3s;
+    }
+    body.night .card { background: var(--night-card-bg); box-shadow: var(--night-shadow); }
+
+    h1, h2 { margin: 0 0 12px 0; font-weight: 600; }
+
+    input, select {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      border: none;
+      font-family: inherit;
+      width: 100%;
+      margin-bottom: 12px;
+      background: #f0f1f5;
+      font-size: 1rem;
+      outline: none;
+      box-shadow: 0 1px 6px #00000011;
+    }
+    body.night input, body.night select { background: #262a36; color: #fff; }
+
+    button {
+      border: none;
+      outline: none;
+      border-radius: var(--radius);
+      padding: 14px 28px;
+      font: 600 1.1rem var(--font-main);
+      cursor: pointer;
+      margin-top: 8px;
+      box-shadow: var(--shadow);
+      background: var(--safe-gradient);
+      color: #fff;
+      transition: background 0.23s, box-shadow 0.13s, transform 0.12s;
+    }
+
+    button:active {
+      transform: scale(0.97);
+      box-shadow: 0 1px 5px #0002;
+    }
+    .sos-btn {
+      background: var(--sos-gradient);
+      font-size: 1.33rem;
+      border-radius: 999px;
+      width: 100%;
+      padding: 32px 0;
+      margin: 18px 0;
+      box-shadow: 0 3px 18px #ff3b3044;
+      letter-spacing: 2px;
+      transition: background 0.2s;
+      display: block;
+    }
+
+    .settings-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toggle-switch {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .toggle-switch input[type="checkbox"] {
+      width: 38px; height: 22px;
+      accent-color: #34c759;
+    }
+
+    .alert-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .alert-card {
+      background: var(--card-bg);
+      border-left: 6px solid #ff3b30;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 18px 14px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      animation: fadeIn 0.55s;
+    }
+    body.night .alert-card { background: var(--night-card-bg); }
+    .alert-title {
+      font-weight: 600; font-size: 1.15rem;
+    }
+    .alert-time {
+      color: #888;
+      font-size: 0.98rem;
+    }
+    .alert-location {
+      color: #007aff;
+      text-decoration: underline;
+      font-size: 1.01rem;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(26px);}
+      to   { opacity: 1; transform: translateY(0);}
+    }
+
+    #toast {
+      position: fixed; bottom: 34px; left: 50%; transform: translateX(-50%);
+      background: #fff; color: #222;
+      padding: 15px 32px;
+      border-radius: 38px;
+      box-shadow: 0 1px 14px #0004;
+      font-weight: 600;
+      opacity: 0; pointer-events: none;
+      z-index: 120;
+      transition: opacity 0.3s;
+    }
+    body.night #toast { background: #23283b; color: #fff; }
+
+    #toast.show { opacity: 1; pointer-events: all; }
+
+    @media (max-width: 600px) {
+      main#app { max-width: 100vw; padding: 44px 1vw 18px 1vw; }
+      .card, .alert-card { padding: 19px 8px; }
+      h1 { font-size: 1.42rem; }
+    }
+  </style>
 </head>
 <body>
   <div id="theme-toggle">
     <button id="toggle-btn" aria-label="Toggle day/night mode"></button>
   </div>
-  <main id="app">
-    <!-- App renders here -->
-  </main>
+  <main id="app"></main>
   <div id="toast"></div>
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="js/firebase-config.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/child.js"></script>
-  <script src="js/parent.js"></script>
-  <script src="js/app.js"></script>
+  <script>
+    // TODO: Replace with your Firebase config!
+    const firebaseConfig = {
+     apiKey: "AIzaSyA97zEfkCrhAiBDvwAlSU0faKFP9tZE",
+  authDomain: "sos-alert-9ce90.firebaseapp.com",
+  projectId: "sos-alert-9ce90",
+  storageBucket: "sos-alert-9ce90.appspot.com",
+  messagingSenderId: "438540880025",
+  appId: "1:438540880025:web:69ef9de79ddf7b74765008",
+  measurementId: "G-LDEWZH5R1"
+      
+    };
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.firestore();
+  </script>
+  <script>
+    // UI rendering, theme, toast, and small utilities
+
+    // Theme toggle
+    const themeBtn = document.getElementById('toggle-btn');
+    const setTheme = (night) => {
+      document.body.classList.toggle('night', night);
+      themeBtn.innerHTML = night ? "🌙" : "☀️";
+      localStorage.setItem('night', night ? "1" : "");
+    };
+    themeBtn.onclick = () => setTheme(!document.body.classList.contains('night'));
+    if(localStorage.getItem('night')==="1") setTheme(true); else setTheme(false);
+
+    window.showToast = (msg) => {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    };
+
+    window.render = (html) => {
+      document.getElementById('app').innerHTML = html;
+    };
+
+    window.loading = () => `
+      <div class="card" style="text-align:center;">
+        <span style="font-size:2rem;">⏳</span><br/>
+        <b>Loading...</b>
+      </div>
+    `;
+
+    // Format date
+    window.fmtDate = (ts) => {
+      const d = ts instanceof Date ? ts : new Date(ts);
+      return d.toLocaleString();
+    };
+  </script>
+  <script>
+    // Authentication and role selection
+
+    window.session = JSON.parse(localStorage.getItem('suraksha-session') || "{}") || {};
+
+    function saveSession() {
+      localStorage.setItem('suraksha-session', JSON.stringify(window.session));
+    }
+
+    function authScreen() {
+      window.render(`
+        <div class="card" style="margin-top:36px;">
+          <h1>👋 Welcome to Suraksha</h1>
+          <form id="auth-form">
+            <label>Name</label>
+            <input id="name" type="text" maxlength="18" required value="${window.session.name||''}">
+            <label>Family ID</label>
+            <input id="family" type="text" maxlength="10" required value="${window.session.family||''}" placeholder="Create or join...">
+            <label>Role</label>
+            <select id="role">
+              <option value="child" ${window.session.role==='child'?'selected':''}>Child 👶</option>
+              <option value="parent" ${window.session.role==='parent'?'selected':''}>Parent 👨‍👩‍👧‍👦</option>
+            </select>
+            <button type="submit">Continue</button>
+          </form>
+        </div>
+      `);
+      document.getElementById('auth-form').onsubmit = async (e) => {
+        e.preventDefault();
+        window.session = {
+          name: document.getElementById('name').value.trim(),
+          family: document.getElementById('family').value.trim().toUpperCase(),
+          role: document.getElementById('role').value,
+          accidentDetection: window.session.accidentDetection ?? true
+        };
+        saveSession();
+        // Add to family doc if not present
+        const famRef = db.collection('families').doc(window.session.family);
+        await famRef.set({}, {merge:true});
+        await famRef.update({
+          members: firebase.firestore.FieldValue.arrayUnion(window.session.name)
+        });
+        showToast("Logged in!");
+        window.session.role === "child" ? childScreen() : parentScreen();
+      };
+    }
+  </script>
+  <script>
+    // Child main UI, SOS, accident detection, settings
+
+    let accidentActive = false;
+    let shakeTimeout = null;
+
+    function childScreen() {
+      window.render(`
+        <div class="card">
+          <h2>Hi, ${session.name} 👶</h2>
+          <button class="sos-btn" id="sos-btn">🚨 SOS</button>
+          <div id="sos-status"></div>
+        </div>
+        <div class="card settings-panel">
+          <h3>Quick Settings</h3>
+          <label>
+            Name
+            <input id="set-name" type="text" maxlength="18" value="${session.name}">
+          </label>
+          <label>
+            Family ID
+            <input id="set-family" type="text" maxlength="10" value="${session.family}">
+          </label>
+          <div class="toggle-switch">
+            <label>
+              <input id="toggle-acc" type="checkbox" ${session.accidentDetection?'checked':''}/>
+              Accident Detection
+            </label>
+          </div>
+          <button id="save-set">Save</button>
+        </div>
+      `);
+
+      document.getElementById('sos-btn').onclick = sendSOS;
+      document.getElementById('save-set').onclick = () => {
+        session.name = document.getElementById('set-name').value.trim();
+        session.family = document.getElementById('set-family').value.trim().toUpperCase();
+        session.accidentDetection = document.getElementById('toggle-acc').checked;
+        localStorage.setItem('suraksha-session', JSON.stringify(session));
+        showToast("Settings saved!");
+        // Immediate effect: reload
+        childScreen();
+      };
+
+      if(session.accidentDetection && window.DeviceMotionEvent) enableShake();
+      else disableShake();
+    }
+
+    function sendSOS(opts={auto:false}) {
+      const btn = document.getElementById('sos-btn');
+      btn.disabled = true;
+      btn.innerText = "Sending...";
+      if(navigator.vibrate) navigator.vibrate([200, 80, 140]);
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const alert = {
+          name: session.name,
+          role: "child",
+          timestamp: Date.now(),
+          location: {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          },
+          cancelled: false,
+          auto: opts.auto||false
+        };
+        await db.collection('families').doc(session.family)
+          .collection('alerts').add(alert);
+        document.getElementById('sos-status').innerHTML = `
+          <b style="color:#ff3b30;">SOS Sent!</b>
+          <br/><span style="color:#666;">${new Date().toLocaleString()}</span>
+          ${opts.auto ? `<br/><small>(Automatic Detection)</small>` : ""}
+        `;
+        btn.disabled = false;
+        btn.innerText = "🚨 SOS";
+      }, (err) => {
+        showToast("Location permission denied!");
+        btn.disabled = false;
+        btn.innerText = "🚨 SOS";
+      });
+    }
+
+    // ACCIDENT/CRASH DETECTION
+    function enableShake() {
+      if(accidentActive) return;
+      accidentActive = true;
+      let last = {x:0, y:0, z:0, t:0};
+      window.ondevicemotion = (e) => {
+        const acc = e.accelerationIncludingGravity;
+        if(!acc) return;
+        const now = Date.now();
+        if(now - last.t < 400) return;
+        // Calculate shake intensity
+        const dx = Math.abs(acc.x - last.x);
+        const dy = Math.abs(acc.y - last.y);
+        const dz = Math.abs(acc.z - last.z);
+        last = {x:acc.x, y:acc.y, z:acc.z, t:now};
+        if(dx+dy+dz > 30) { // Threshold
+          if(shakeTimeout) return;
+          // Show countdown
+          let countdown = 5;
+          document.getElementById('sos-status').innerHTML = `
+            <b>Possible accident detected!</b>
+            <br>Sending SOS in <span id="countdown">${countdown}</span> sec...
+            <br><button id="cancel-shake">Cancel</button>
+          `;
+          shakeTimeout = setInterval(() => {
+            countdown--;
+            if(countdown <= 0) {
+              clearInterval(shakeTimeout);
+              shakeTimeout = null;
+              sendSOS({auto:true});
+            } else {
+              document.getElementById('countdown').textContent = countdown;
+            }
+          }, 1000);
+          document.getElementById('cancel-shake').onclick = () => {
+            clearInterval(shakeTimeout);
+            shakeTimeout = null;
+            document.getElementById('sos-status').innerHTML = "";
+          };
+        }
+      };
+    }
+    function disableShake() {
+      accidentActive = false;
+      shakeTimeout && clearInterval(shakeTimeout);
+      shakeTimeout = null;
+      window.ondevicemotion = null;
+    }
+  </script>
+  <script>
+    // Parent mode: Real-time alerts feed
+
+    let alertUnsub = null;
+
+    function parentScreen() {
+      window.render(`
+        <div class="card">
+          <h2>👨‍👩‍👧‍👦 Parent Dashboard</h2>
+          <div id="alerts"></div>
+        </div>
+      `);
+      loadAlerts();
+    }
+
+    function loadAlerts() {
+      const alertsDiv = document.getElementById('alerts');
+      alertsDiv.innerHTML = window.loading();
+      if(alertUnsub) alertUnsub();
+
+      alertUnsub = db.collection('families').doc(session.family)
+        .collection('alerts')
+        .orderBy('timestamp', 'desc')
+        .limit(30)
+        .onSnapshot(snap => {
+          if(snap.empty) {
+            alertsDiv.innerHTML = `<div style="text-align:center;color:#888;">No alerts yet.</div>`;
+            return;
+          }
+          alertsDiv.innerHTML = `
+            <div class="alert-list">
+              ${snap.docs.map(doc => renderAlert(doc.data())).join("")}
+            </div>
+          `;
+        });
+    }
+
+    function renderAlert(alert) {
+      return `
+        <div class="alert-card">
+          <div class="alert-title">🚨 ${alert.name}</div>
+          <div class="alert-time">🕒 ${fmtDate(alert.timestamp)}</div>
+          <div>
+            📍 <a class="alert-location" target="_blank"
+              href="https://maps.google.com/?q=${alert.location.lat},${alert.location.lng}">
+              View Location
+            </a>
+          </div>
+          ${alert.auto ? `<div style="color:#ff9500;font-size:0.97em;margin-top:2px;">(Automatic Detection)</div>` : ""}
+        </div>
+      `;
+    }
+  </script>
+  <script>
+    // App bootstrapping and routing
+
+    window.onload = () => {
+      if(!session.name || !session.family || !session.role) authScreen();
+      else session.role === "child" ? childScreen() : parentScreen();
+    };
+  </script>
 </body>
 </html>
