@@ -90,6 +90,17 @@ animation:float 5s linear infinite;
 </head>
 
 <body>
+  <button onclick="playMusic()">Play Music 🎵</button>
+
+<audio id="music" loop>
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+function playMusic(){
+document.getElementById("music").play();
+}
+</script>
 <audio id="music" autoplay loop>
   <source src="song.mp3" type="audio/mpeg">
 </audio>
