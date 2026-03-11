@@ -3,43 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Secret Message for Gunnu</title>
+<title>Special Message for Gunnu</title>
 
 <style>
 
 body{
 margin:0;
 font-family:Arial, sans-serif;
-background:linear-gradient(135deg,#ff758c,#ff7eb3);
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-text-align:center;
+background:black;
 color:white;
-overflow:hidden;
+text-align:center;
+overflow-x:hidden;
 }
 
 .container{
 max-width:420px;
-padding:25px;
-}
-
-h2,h3,p{
-margin:10px 0;
+margin:auto;
+padding:30px 20px;
 }
 
 button{
 padding:12px 25px;
 border:none;
-border-radius:25px;
-background:white;
-color:#ff4b6e;
-font-weight:bold;
+border-radius:30px;
+background:#ff4b6e;
+color:white;
+font-size:16px;
 cursor:pointer;
 margin-top:20px;
 transition:0.3s;
-font-size:16px;
 }
 
 button:hover{
@@ -52,7 +44,7 @@ display:none;
 
 .meter{
 width:100%;
-background:rgba(255,255,255,0.3);
+background:#333;
 border-radius:20px;
 margin-top:15px;
 }
@@ -60,13 +52,13 @@ margin-top:15px;
 .meter-bar{
 height:20px;
 width:100%;
-background:#ff3b3b;
+background:red;
 border-radius:20px;
 transition:2s;
 }
 
 .hearts{
-position:absolute;
+position:fixed;
 top:0;
 left:0;
 width:100%;
@@ -76,7 +68,7 @@ pointer-events:none;
 
 .heart{
 position:absolute;
-color:white;
+color:#ff4b6e;
 font-size:20px;
 animation:float 5s linear infinite;
 }
@@ -86,30 +78,32 @@ animation:float 5s linear infinite;
 100%{transform:translateY(-10vh);}
 }
 
+.intro{
+margin-top:40vh;
+font-size:28px;
+animation:fade 4s forwards;
+}
+
+@keyframes fade{
+0%{opacity:0}
+50%{opacity:1}
+100%{opacity:0}
+}
+
 </style>
 </head>
 
 <body>
-  <button onclick="playMusic()">Play Music 🎵</button>
 
-<audio id="music" loop>
-  <source src="song.mp3" type="audio/mpeg">
-</audio>
-
-<script>
-function playMusic(){
-document.getElementById("music").play();
-}
-</script>
-<audio id="music" autoplay loop>
-  <source src="song.mp3" type="audio/mpeg">
-</audio>
 <div class="hearts" id="hearts"></div>
 
-<div class="container">
+<div id="intro" class="intro">
+A Small Coding Experiment For Gunnu 🎬
+</div>
+
+<div class="container hidden" id="main">
 
 <h2>⚠ System Alert</h2>
-
 <p>System detected that <b>Gunnu</b> is angry 😶</p>
 
 <button onclick="start()">Check Details</button>
@@ -143,9 +137,9 @@ document.getElementById("music").play();
 
 <p>
 Rule follow किया है इसलिए  
-<b>"Sorry"</b> नहीं बोलूँगा 😄  
+<b>Sorry</b> word use नहीं करूँगा 😄  
 <br><br>
-लेकिन इतना जरूर कहूँगा…  
+बस इतना कहना है...  
 तुम्हारा नाराज़ होना अच्छा नहीं लगता।
 <br><br>
 तुम बहुत important हो।
@@ -154,11 +148,22 @@ System Message:
 <b>Friendship = Permanent ♾️</b>
 </p>
 
+<button onclick="playMusic()">Play Gunnu's Favourite Song 🎵</button>
+
 </div>
 
 </div>
+
+<audio id="music" loop>
+<source src="song.mp3" type="audio/mpeg">
+</audio>
 
 <script>
+
+setTimeout(()=>{
+document.getElementById("intro").style.display="none";
+document.getElementById("main").classList.remove("hidden");
+},4000);
 
 function start(){
 
@@ -202,9 +207,11 @@ setTimeout(typeText,40);
 }
 
 function mission(){
-
 document.getElementById("stage4").classList.remove("hidden");
+}
 
+function playMusic(){
+document.getElementById("music").play();
 }
 
 function createHearts(){
@@ -228,4 +235,5 @@ setInterval(createHearts,400);
 </script>
 
 </body>
-  </html>
+</html>
+
