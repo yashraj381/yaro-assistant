@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yaro Live Talk</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  text-align: center;
+}
+
+button {
+  padding: 15px 25px;
+  font-size: 18px;
+  border-radius: 25px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+  z-index: 10;
+  position: relative;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+#response {
+  margin-top: 20px;
+  font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Yaro 🎙️</h1>
+  <button id="startBtn">Start Talking</button>
+  <p id="response">Click button aur baat karo 🙂</p>
+</div>
+
+<script>
+
+// ✅ BUTTON FIX (onclick ke bajaye event listener)
+document.getElementById("startBtn").addEventListener("click", startYaro);
+
+let recognition;
+let selectedVoice = null;
+
+// 🔊 Voice load
+function loadVoices() {
+  let voices = speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    selectedVoice = voices.find(v => v.lang.includes("hi")) || voices[0];
+  }
+}
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+// 🗣️ Speak
+function speak(text, callback) {
+  let speech = new SpeechSynthesisUtterance(text);
+  speech.lang = "hi-IN";
+  speech.voice = selectedVoice;
+
+  speech.onend = () => {
+    if (callback) callback();
+  };
+
+  speechSynthesis.cancel();
+  speechSynthesis.speak(speech);
+}
+
+// 🎤 Listen
+function startListening() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    document.getElementById("response").innerText = "Chrome use karo 🙂";
+    return;
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = "hi-IN";
+
+  recognition.start();
+  document.getElementById("response").innerText = "Sun raha hoon...";
+
+  recognition.onresult = (e) => {
+    let text = e.results[0][0].transcript.toLowerCase();
+
+    document.getElementById("response").innerText = "Tum: " + text;
+
+    let reply = getReply(text);
+
+    setTimeout(() => {
+      document.getElementById("response").innerText += "\nYaro: " + reply;
+
+      speak(reply, startListening);
+    }, 500);
+  };
+
+  recognition.onerror = () => {
+    document.getElementById("response").innerText = "Error... dobara try karo";
+  };
+}
+
+// 🧠 Replies
+function getReply(text) {
+  if (text.includes("hello") || text.includes("hi"))
+    return "Hello dost 🙂 kaise ho?";
+
+  if (text.includes("mood off"))
+    return "Hmm… bataoge kya hua? main yahin hoon";
+
+  if (text.includes("akela"))
+    return "Tum akela nahi ho 🙂 main hoon na";
+
+  return "Main sun raha hoon… aur batao 🙂";
+}
+
+// 🚀 Start
+function startYaro() {
+  document.getElementById("response").innerText = "Yaro start ho raha hai...";
+
+  setTimeout(() => {
+    speak("Hey… main Yaro hoon 🙂", startListening);
+  }, 500);
+}
+
+</script>
+
+</body>
+</html>
