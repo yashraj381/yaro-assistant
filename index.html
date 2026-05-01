@@ -1,0 +1,126 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Talk with Yaro</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #dff9fb, #c7ecee);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }h1 {
+  font-size: 24px;
+  color: #2f3542;
+  margin-bottom: 20px;
+}
+
+.waves {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  background: url('https://svgshare.com/i/taM.svg') repeat-x;
+  background-size: contain;
+  animation: waveMove 6s linear infinite;
+  z-index: 0;
+}
+
+@keyframes waveMove {
+  0% { background-position-x: 0; }
+  100% { background-position-x: 1000px; }
+}
+
+#transcript {
+  z-index: 2;
+  margin-top: 30px;
+  font-size: 18px;
+  color: #2f3542;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  max-width: 90%;
+  text-align: center;
+  animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #000;
+  color: #fff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  z-index: 3;
+}
+
+  </style>
+</head>
+<body>
+  <button class="back-btn" onclick="goBack()">Back</button>
+  <h1>Live Talk with Yaro</h1>
+  <div id="transcript">Listening...</div>
+  <div class="waves"></div>  <script>
+    const customQandA = {
+  "hello": "Hi there!",
+  "who are you": "I am Yaro, your assistant!",
+  "how are you": "I'm always doing great!",
+  "bye": "Goodbye! Have a great day!"
+};
+function getReply(input) {
+  const lower = input.toLowerCase();
+  return customQandA[lower] || "I'm not sure how to answer that.";
+}
+    function goBack() {
+      window.history.back();
+    }
+
+    function speak(text) {
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-IN';
+      utterance.pitch = 1.1;
+      utterance.rate = 1;
+      synth.speak(utterance);
+    }
+
+    function startListening() {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-IN';
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.start();
+
+      recognition.onresult = function(event) {
+        const text = event.results[event.results.length - 1][0].transcript;
+const reply = getReply(text);
+document.getElementById("transcript").innerText = `You said: \"${text}\"\nYaro: ${reply}`;
+speak(reply);
+      };
+
+      recognition.onerror = function() {
+        document.getElementById("transcript").innerText = 'Sorry, I didn\'t catch that. Try again!';
+        speak("Sorry, I didn't catch that.");
+      };
+    }
+
+    // Start listening immediately
+    startListening();
+  </script></body>
+</html>
