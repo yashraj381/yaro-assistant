@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yaro Live Talk</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+h1 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+#status {
+  margin-top: 10px;
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+#transcript {
+  margin-top: 20px;
+  font-size: 18px;
+  background: rgba(255,255,255,0.1);
+  padding: 15px;
+  border-radius: 12px;
+  max-width: 90%;
+  text-align: center;
+}
+
+.circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #3b82f6;
+  margin-top: 20px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  background: #3b82f6;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Yaro 🎙️ Live Talk</h1>
+<div id="status">Start dabao aur baat karo</div>
+
+<div class="circle"></div>
+
+<div id="transcript">Yaro: main yahin hoon 🙂</div>
+
+<button onclick="startYaro()">Start Talking</button>
+
+<script>
+let recognition;
+let synth = window.speechSynthesis;
+
+const replies = {
+  "mood off": "Hmm… lag raha hai kuch sahi nahi hai… bataoge kya hua? main yahin hoon.",
+  "alone": "Toh main hoon na 🙂 tum bilkul akela nahi ho.",
+  "hello": "Hello! kaise ho tum?",
+  "hi": "Hi 🙂 aaj ka din kaisa gaya?",
+  "kaise ho": "Main theek hoon… tum batao?",
+  "thank you": "Arey 🙂 itni formal mat bano… dost ho tum.",
+};
+
+function getReply(text) {
+  text = text.toLowerCase();
+
+  for (let key in replies) {
+    if (text.includes(key)) return replies[key];
+  }
+
+  return "Main sun raha hoon… aur batao 🙂";
+}
+
+function speak(text, callback) {
+  synth.cancel();
+
+  let utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'hi-IN';
+  utter.pitch = 1;
+  utter.rate = 0.9;
+
+  let voices = synth.getVoices();
+
+  if (voices.length === 0) {
+    synth.onvoiceschanged = () => {
+      voices = synth.getVoices();
+      setVoice();
+    };
+  } else {
+    setVoice();
+  }
+
+  function setVoice() {
+    let v = voices.find(v => v.lang.includes('hi')) || voices[0];
+    utter.voice = v;
+
+    utter.onend = () => {
+      if (callback) callback();
+    };
+
+    synth.speak(utter);
+  }
+}
+
+function startListening() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    document.getElementById("status").innerText = "Chrome browser use karo 🙂";
+    return;
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = 'hi-IN';
+  recognition.interimResults = false;
+
+  recognition.start();
+  document.getElementById("status").innerText = "Yaro sun raha hai...";
+
+  recognition.onresult = function(e) {
+    let text = e.results[0][0].transcript;
+
+    document.getElementById("transcript").innerText = "Tum: " + text;
+
+    let reply = getReply(text);
+
+    setTimeout(() => {
+      document.getElementById("transcript").innerText += "\nYaro: " + reply;
+
+      speak(reply, () => {
+        startListening(); // LOOP
+      });
+
+    }, 500);
+  };
+
+  recognition.onerror = function() {
+    document.getElementById("status").innerText = "Dobara try karte hain...";
+    setTimeout(startListening, 1000);
+  };
+}
+
+function startYaro() {
+  speak("Hey… main Yaro hoon 🙂 tumse baat karke accha lag raha hai.", () => {
+    startListening();
+  });
+}
+</script>
+
+</body>
+</html>
