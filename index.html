@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yaro के साथ लाइव बात करें</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Segoe UI', 'Noto Sans Devanagari', sans-serif;
+      background: linear-gradient(135deg, #dff9fb, #c7ecee);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #2f3542;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .waves {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 200px;
+      background: url('https://svgshare.com/i/taM.svg') repeat-x;
+      background-size: contain;
+      animation: waveMove 6s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes waveMove {
+      0% { background-position-x: 0; }
+      100% { background-position-x: 1000px; }
+    }
+
+    #transcript {
+      z-index: 2;
+      margin-top: 30px;
+      font-size: 18px;
+      color: #2f3542;
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+      max-width: 90%;
+      text-align: center;
+      animation: fadeIn 1s ease;
+      line-height: 1.6;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: #000;
+      color: #fff;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      z-index: 3;
+      font-family: 'Noto Sans Devanagari', sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <button class="back-btn" onclick="goBack()">वापस</button>
+  <h1>Yaro के साथ लाइव बात करें</h1>
+  <div id="transcript">सुन रहा हूँ...</div>
+  <div class="waves"></div>
+
+  <script>
+    const customQandA = {
+      "नमस्ते": "नमस्ते! आपसे बात करके खुशी हुई।",
+      "हेलो": "हेलो! मैं आपके लिए यहाँ हूँ।",
+      "तुम कौन हो": "मैं Yaro हूँ, Yashraj Pawar द्वारा बनाया गया आपका मित्र।",
+      "आपका नाम क्या है": "मेरा नाम Yaro है।",
+      "कैसे हो": "मैं बहुत अच्छा हूँ! आप कैसे हैं?",
+      "आप कैसे हैं": "मैं हमेशा ठीक हूँ! धन्यवाद पूछने के लिए।",
+      "धन्यवाद": "आपका स्वागत है!",
+      "अलविदा": "अलविदा! एक शानदार दिन बिताइए!",
+      "बाय": "बाय! जल्द मिलेंगे।",
+      "किसने बनाया": "Yashraj Pawar ने मुझे बनाया है।",
+      "तुम्हारा निर्माता कौन है": "Yashraj Pawar मेरे निर्माता हैं।"
+    };
+
+    function getReply(input) {
+      const lower = input.toLowerCase().trim();
+      
+      // Check for exact match first
+      if (customQandA[lower]) {
+        return customQandA[lower];
+      }
+      
+      // Check for partial matches
+      for (let key in customQandA) {
+        if (lower.includes(key)) {
+          return customQandA[key];
+        }
+      }
+      
+      return "मुझे यह समझ नहीं आया। कृपया फिर से बताइए।";
+    }
+
+    function goBack() {
+      window.history.back();
+    }
+
+    function speak(text) {
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'hi-IN'; // Hindi language
+      utterance.pitch = 1.1;
+      utterance.rate = 1;
+      synth.speak(utterance);
+    }
+
+    function startListening() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        document.getElementById("transcript").innerText = 'यह ब्राउज़र Speech Recognition को समर्थित नहीं करता।';
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'hi-IN'; // Hindi language
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.start();
+      document.getElementById("transcript").innerText = 'सुन रहा हूँ...';
+
+      recognition.onresult = function(event) {
+        const text = event.results[event.results.length - 1][0].transcript;
+        const reply = getReply(text);
+        document.getElementById("transcript").innerText = `आपने कहा: "${text}"\n\nYaro: ${reply}`;
+        speak(reply);
+        
+        // Restart listening after a brief delay
+        setTimeout(startListening, 2000);
+      };
+
+      recognition.onerror = function(event) {
+        document.getElementById("transcript").innerText = `क्षमा करें, त्रुटि: ${event.error}। कृपया फिर से कोशिश करें।`;
+        speak("क्षमा करें, मुझे यह नहीं समझा आया।");
+        
+        // Restart listening after a brief delay
+        setTimeout(startListening, 2000);
+      };
+
+      recognition.onend = function() {
+        // Restart if it ended unexpectedly
+        if (document.getElementById("transcript").innerText === 'सुन रहा हूँ...') {
+          startListening();
+        }
+      };
+    }
+
+    // Introduction function
+    function introduceYaro() {
+      const introduction = "नमस्ते! मैं Yaro हूँ। मेरा निर्माता Yashraj Pawar है और मैं आपका दोस्त हूँ। आप मुझसे कुछ भी पूछ सकते हैं।";
+      document.getElementById("transcript").innerText = introduction;
+      speak(introduction);
+      
+      // Start listening after introduction
+      setTimeout(startListening, 4000);
+    }
+
+    // Start with introduction when page loads
+    window.addEventListener('load', introduceYaro);
+  </script>
+</body>
+</html>
