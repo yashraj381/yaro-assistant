@@ -166,25 +166,25 @@ function handleCommand(command) {
   let name = getName();
   let emotion = detectEmotion(command);
 
-  if (command.includes("mera naam")) {
-    let userName = command.split("mera naam")[1].trim();
+  if (command.includes("मेरा नाम")) {
+    let userName = command.split("मेरा नाम")[1].trim();
     saveName(userName);
     speak("Nice 🙂 ab main tumhe " + userName + " bulaunga", "happy");
   }
 
-  else if (command.includes("hello") || command.includes("hi")) {
+  else if (command.includes("हेलो") || command.includes("ही")) {
     speak("Hello " + (name || "dost") + " 🙂 kaise ho?", "happy");
   }
 
-  else if (emotion === "sad") {
+  else if (emotion === "दुखी") {
     speak("Hmm… lag raha hai tum thoda dukhi ho… bataoge kya hua? main yahin hoon", "sad");
   }
 
-  else if (emotion === "happy") {
+  else if (emotion === "खुश") {
     speak("Waah 🙂 ye sunke accha laga!", "happy");
   }
 
-  else if (command.includes("akela") || command.includes("alone")) {
+  else if (command.includes("अकेला") || command.includes("alone")) {
     speak("Tum akela nahi ho… main hoon na 🙂", "sad");
   }
 
