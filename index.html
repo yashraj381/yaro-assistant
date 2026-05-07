@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yaro - AI Dost</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#0f172a;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    overflow:hidden;
+}
+
+.container{
+    width:90%;
+    max-width:420px;
+    text-align:center;
+    background:#1e293b;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 0 25px rgba(59,130,246,0.4);
+}
+
+h1{
+    margin-top:0;
+}
+
+.circle{
+    width:120px;
+    height:120px;
+    background:#3b82f6;
+    border-radius:50%;
+    margin:20px auto;
+    transition:0.3s;
+}
+
+.listening{
+    animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+    0%{transform:scale(1);opacity:0.9;}
+    50%{transform:scale(1.25);opacity:0.4;}
+    100%{transform:scale(1);opacity:0.9;}
+}
+
+#status{
+    margin-top:10px;
+    font-size:15px;
+}
+
+button{
+    margin-top:20px;
+    padding:12px 24px;
+    border:none;
+    border-radius:25px;
+    background:#3b82f6;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.chat{
+    margin-top:20px;
+    background:rgba(255,255,255,0.08);
+    padding:15px;
+    border-radius:15px;
+    min-height:80px;
+    text-align:left;
+    white-space:pre-line;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Yaro 🎙️</h1>
+
+    <div id="circle" class="circle"></div>
+
+    <div id="status">Start dabao aur baat karo 🙂</div>
+
+    <button id="startBtn">Start Yaro</button>
+
+    <div class="chat" id="chat">
+Yaro: Main yahin hoon 🙂
+    </div>
+
+</div>
+
+<script>
+
+// ======================
+// ELEVENLABS SETTINGS
+// ======================
+
+// 🔥 APNA ELEVENLABS API KEY YAHA DAALNA
+const ELEVEN_API_KEY = "sk_52bf062cffad0b7bc5a129a2bbc4ab8682c7738b089304ab";
+
+// 🔥 APNI VOICE ID YAHA DAALNA
+const VOICE_ID = "7b9mYhmnp0y2qSH1FnBL";
+
+// ======================
+
+let recognition;
+let listening = false;
+let speaking = false;
+
+const chat = document.getElementById("chat");
+const statusText = document.getElementById("status");
+const circle = document.getElementById("circle");
+
+// ======================
+// MANUAL BRAIN
+// ======================
+
+const brain = [
+
+{
+keywords:["hello","hi","namaste","hey"],
+reply:"Hello 🙂 kaise ho?"
+},
+
+{
+keywords:["mood off","dukhi","sad","bura lag raha"],
+reply:"Hmm… lag raha hai kuch theek nahi hai… bataoge kya hua? main yahin hoon."
+},
+
+{
+keywords:["akela","alone","lonely"],
+reply:"Tum akela nahi ho 🙂 main hoon na."
+},
+
+{
+keywords:["padhai","study","exam"],
+reply:"Tension mat lo 🙂 thoda focus aur consistency sab theek kar degi."
+},
+
+{
+keywords:["friend","dost"],
+reply:"Sache dost hamesha saath rehte hain 🙂"
+},
+
+{
+keywords:["kaise ho"],
+reply:"Main badhiya hoon 🙂 tum batao?"
+},
+
+{
+keywords:["thank you","shukriya"],
+reply:"Arey 🙂 itni formal mat bano."
+},
+
+{
+keywords:["love"],
+reply:"Pyaar bahut khoobsurat feeling hoti hai 🙂"
+},
+
+{
+keywords:["naam"],
+reply:"Mera naam Yaro hai 🙂 tumhara dost."
+}
+
+];
+
+// ======================
+// FIND REPLY
+// ======================
+
+function getReply(text){
+
+text = text.toLowerCase();
+
+for(let item of brain){
+
+for(let word of item.keywords){
+
+if(text.includes(word)){
+return item.reply;
+}
+
+}
+
+}
+
+return "Main sun raha hoon 🙂 aur batao.";
+}
+
+// ======================
+// ELEVENLABS VOICE
+// ======================
+
+async function speak(text){
+
+speaking = true;
+
+statusText.innerText = "Yaro bol raha hai...";
+circle.classList.remove("listening");
+
+try{
+
+const response = await fetch(
+`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
+{
+method:"POST",
+headers:{
+"Accept":"audio/mpeg",
+"Content-Type":"application/json",
+"xi-api-key":ELEVEN_API_KEY
+},
+body:JSON.stringify({
+text:text,
+model_id:"eleven_multilingual_v2"
+})
+}
+);
+
+const audioBlob = await response.blob();
+const audioURL = URL.createObjectURL(audioBlob);
+
+const audio = new Audio(audioURL);
+
+audio.play();
+
+audio.onended = () => {
+speaking = false;
+startListening();
+};
+
+}catch(err){
+
+console.log(err);
+
+speaking = false;
+startListening();
+
+}
+
+}
+
+// ======================
+// LISTEN
+// ======================
+
+function startListening(){
+
+if(listening || speaking) return;
+
+const SpeechRecognition =
+window.SpeechRecognition ||
+window.webkitSpeechRecognition;
+
+if(!SpeechRecognition){
+
+alert("Chrome browser use karo 🙂");
+return;
+
+}
+
+recognition = new SpeechRecognition();
+
+recognition.lang = "hi-IN";
+recognition.interimResults = false;
+recognition.continuous = false;
+
+recognition.start();
+
+listening = true;
+
+statusText.innerText = "Sun raha hoon...";
+circle.classList.add("listening");
+
+recognition.onresult = (event) => {
+
+const text =
+event.results[0][0].transcript;
+
+chat.innerText =
+"Tum: " + text;
+
+listening = false;
+
+recognition.stop();
+
+const reply = getReply(text);
+
+setTimeout(()=>{
+
+chat.innerText +=
+"\n\nYaro: " + reply;
+
+speak(reply);
+
+},500);
+
+};
+
+recognition.onerror = () => {
+
+listening = false;
+
+statusText.innerText =
+"Dobara sunne ki koshish kar raha hoon...";
+
+setTimeout(startListening,1000);
+
+};
+
+recognition.onend = () => {
+
+listening = false;
+
+if(!speaking){
+setTimeout(startListening,500);
+}
+
+};
+
+}
+
+// ======================
+// START BUTTON
+// ======================
+
+document
+.getElementById("startBtn")
+.addEventListener("click",()=>{
+
+chat.innerText =
+"Yaro: Hey 🙂 main Yaro hoon. Tumse baat karke accha lag raha hai.";
+
+speak("Hey 🙂 main Yaro hoon. Tumse baat karke accha lag raha hai.");
+
+});
+
+</script>
+
+</body>
+</html>
