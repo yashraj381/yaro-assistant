@@ -510,6 +510,15 @@ normalizeText(text);
 // Example:
 // yaad rakho hello ka jawab hey dost
 if(
+text.includes("camera off")
+){
+
+stopCamera();
+
+return;
+
+}
+if(
 text.includes("camera on")
 ){
 
@@ -1171,28 +1180,36 @@ lastData = frame;
 },1000);
 
 }
+
 // =======================
 // START CAMERA
 // =======================
-
-let video =
-document.getElementById("video");
-
 async function startCamera(){
+
+if(cameraOn){
+
+reply(
+"Camera already on 🙂"
+);
+
+return;
+
+}
 
 try{
 
-const stream =
-await navigator
-.mediaDevices
-.getUserMedia({
+cameraStream =
+await navigator.mediaDevices.getUserMedia({
 video:true
 });
 
-video.srcObject = stream;
+video.srcObject =
+cameraStream;
 
 video.style.display =
 "block";
+
+cameraOn = true;
 
 reply(
 "Camera on 😄"
@@ -1208,7 +1225,38 @@ reply(
 
 }
 
+  }
+// =======================
+// STOP CAMERA
+// =======================
+
+function stopCamera(){
+
+if(!cameraOn){
+
+reply(
+"Camera already off 🙂"
+);
+
+return;
+
 }
+
+cameraStream
+.getTracks()
+.forEach(track=>track.stop());
+
+video.srcObject = null;
+
+video.style.display =
+"none";
+
+cameraOn = false;
+
+reply(
+"Camera off 🙂");
+
+  }
 </script>
 
 </body>
