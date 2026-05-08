@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Yaro - AI Dost</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:linear-gradient(135deg,#0f172a,#1e293b);
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+overflow:hidden;
+}
+
+.container{
+width:90%;
+max-width:430px;
+text-align:center;
+}
+
+h1{
+margin-bottom:5px;
+}
+
+.small{
+opacity:0.7;
+font-size:13px;
+margin-bottom:15px;
+}
+
+.circle{
+width:150px;
+height:150px;
+border-radius:50%;
+background:#3b82f6;
+margin:20px auto;
+box-shadow:0 0 40px #3b82f6;
+transition:0.3s;
+}
+
+.listening{
+animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+
+0%{
+transform:scale(1);
+opacity:1;
+}
+
+50%{
+transform:scale(1.2);
+opacity:0.4;
+}
+
+100%{
+transform:scale(1);
+opacity:1;
+}
+
+}
+
+button{
+padding:14px 24px;
+border:none;
+border-radius:25px;
+background:#3b82f6;
+color:white;
+font-size:16px;
+cursor:pointer;
+margin-top:10px;
+}
+
+input{
+width:70%;
+padding:12px;
+border:none;
+border-radius:20px;
+outline:none;
+font-size:16px;
+}
+
+.chat{
+margin-top:20px;
+background:rgba(255,255,255,0.08);
+padding:15px;
+border-radius:15px;
+height:260px;
+overflow-y:auto;
+text-align:left;
+white-space:pre-line;
+}
+
+video{
+width:100%;
+border-radius:15px;
+margin-top:15px;
+display:none;
+background:black;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Yaro 🎙️</h1>
+
+<div class="small">
+Tumhara AI Dost 🙂
+</div>
+
+<div id="circle" class="circle"></div>
+
+<button onclick="startYaro()">
+Start Yaro
+</button>
+
+<br><br>
+
+<input
+id="userInput"
+type="text"
+placeholder="Yaro se baat karo..."
+>
+
+<button onclick="sendMessage()">
+Send
+</button>
+
+<video
+id="video"
+autoplay
+playsinline>
+</video>
+
+<div class="chat" id="chat">
+Yaro: Main yahin hoon 🙂
+</div>
+
+</div>
+
+<script>
+
+// =======================
+// VARIABLES
+// =======================
+
+let recognition;
+
+let listening = false;
+let speaking = false;
+
+let lastInteraction =
+Date.now();
+
+let cameraOn = false;
+
+let cameraStream = null;
+
+let motionInterval = null;
+
+let motionCooldown = false;
+
+// =======================
+// MEMORY
+// =======================
+
+let memory =
+JSON.parse(
+localStorage.getItem(
+"yaro_memory"
+)
+) || {
+
+name:"",
+mood:"",
+likes:[],
+customReplies:{}
+
+};
+
+// =======================
+// SAVE MEMORY
+// =======================
+
+function saveMemory(){
+
+localStorage.setItem(
+"yaro_memory",
+JSON.stringify(memory)
+);
+
+}
+
+// =======================
+// CHAT
+// =======================
+
+const chat =
+document.getElementById("chat");
+
+function addChat(sender,text){
+
+chat.innerText +=
+"\n\n" +
+sender +
+": " +
+text;
+
+chat.scrollTop =
+chat.scrollHeight;
+
+}
+
+// =======================
+// RANDOM
+// =======================
+
+function random(arr){
+
+return arr[
+Math.floor(
+Math.random() * arr.length
+)
+];
+
+}
+
+// =======================
+// NORMALIZE
+// =======================
+
+function normalizeText(text){
+
+text =
+text.toLowerCase();
+
+const replacements = {
+
+"हेलो":"hello",
+"हाय":"hi",
+"नमस्ते":"namaste",
+
+"दुखी":"sad",
+"उदास":"sad",
+"मूड ऑफ":"mood off",
+
+"अकेला":"alone",
+
+"पढ़ाई":"study",
+"एग्जाम":"exam",
+
+"समय":"time",
+"तारीख":"date",
+
+"मजाक":"joke",
+
+"प्रेरणा":"motivation",
+
+"धन्यवाद":"thank you",
+
+"मेरा नाम":"mera naam",
+
+"मुझे":"mujhe",
+
+"पसंद है":"pasand hai"
+
+};
+
+for(let key in replacements){
+
+text =
+text.replaceAll(
+key,
+replacements[key]
+);
+
+}
+
+text =
+text.replace(/[^\w\s]/gi,"");
+
+return text.trim();
+
+}
+
+// =======================
+// WORD MATCH
+// =======================
+
+function hasWords(text,words){
+
+text =
+normalizeText(text);
+
+for(let word of words){
+
+if(
+text.includes(
+word.toLowerCase()
+)
+){
+
+return true;
+
+}
+
+}
+
+return false;
+
+}
+
+// =======================
+// REPLIES
+// =======================
+
+const emotionalReplies = [
+
+"Main yahin hoon 🙂",
+"Sab theek ho jayega 🙂",
+"Thoda aur bataoge 🙂",
+"Kabhi kabhi life tough lagti hai 🙂"
+
+];
+
+const happyReplies = [
+
+"Waah 🙂",
+"Bahut badhiya 🙂",
+"Nice 🙂"
+
+];
+
+const defaultReplies = [
+
+"Main sun raha hoon 🙂",
+"Aur bataao 🙂",
+"Hmm 🙂",
+"Interesting 🙂"
+
+];
+
+// =======================
+// SPEAK
+// =======================
+
+function speak(text){
+
+speaking = true;
+
+const speech =
+new SpeechSynthesisUtterance(
+text
+);
+
+speech.lang = "hi-IN";
+
+speech.pitch = 1;
+
+speech.rate = 1;
+
+speech.onend = ()=>{
+
+speaking = false;
+
+startListening();
+
+};
+
+speechSynthesis.cancel();
+
+speechSynthesis.speak(
+speech
+);
+
+}
+
+// =======================
+// REPLY
+// =======================
+
+function reply(text){
+
+addChat(
+"Yaro",
+text
+);
+
+speak(text);
+
+}
+
+// =======================
+// START LISTENING
+// =======================
+
+function startListening(){
+
+if(
+listening ||
+speaking
+)
+return;
+
+const SR =
+window.SpeechRecognition ||
+window.webkitSpeechRecognition;
+
+if(!SR){
+
+alert(
+"Chrome browser use karo 🙂"
+);
+
+return;
+
+}
+
+recognition =
+new SR();
+
+recognition.lang =
+"hi-IN";
+
+recognition.continuous =
+false;
+
+recognition.interimResults =
+false;
+
+recognition.start();
+
+listening = true;
+
+document
+.getElementById("circle")
+.classList.add(
+"listening"
+);
+
+recognition.onresult =
+(e)=>{
+
+let text =
+e.results[0][0]
+.transcript;
+
+addChat(
+"Tum",
+text
+);
+
+listening = false;
+
+recognition.stop();
+
+handleCommand(text);
+
+};
+
+recognition.onerror =
+()=>{
+
+listening = false;
+
+document
+.getElementById("circle")
+.classList.remove(
+"listening"
+);
+
+setTimeout(
+startListening,
+1000
+);
+
+};
+
+recognition.onend =
+()=>{
+
+listening = false;
+
+document
+.getElementById("circle")
+.classList.remove(
+"listening"
+);
+
+if(!speaking){
+
+setTimeout(
+startListening,
+500
+);
+
+}
+
+};
+
+}
+
+// =======================
+// START YARO
+// =======================
+
+function startYaro(){
+
+let hour =
+new Date().getHours();
+
+let greet =
+"";
+
+if(hour < 12){
+
+greet =
+"Good morning 🙂";
+
+}
+else if(hour < 18){
+
+greet =
+"Good afternoon 🙂";
+
+}
+else{
+
+greet =
+"Good evening 🙂";
+
+}
+
+let welcome =
+greet +
+" Main Yaro hoon 🙂";
+
+addChat(
+"Yaro",
+welcome
+);
+
+speak(
+welcome
+);
+
+}
+
+// =======================
+// SEND MESSAGE
+// =======================
+
+function sendMessage(){
+
+let input =
+document
+.getElementById(
+"userInput"
+);
+
+let text =
+input.value.trim();
+
+if(text === "")
+return;
+
+addChat(
+"Tum",
+text
+);
+
+input.value = "";
+
+handleCommand(text);
+
+}
+
+// =======================
+// ENTER SUPPORT
+// =======================
+
+document
+.getElementById(
+"userInput"
+)
+.addEventListener(
+"keypress",
+function(e){
+
+if(
+e.key === "Enter"
+){
+
+sendMessage();
+
+}
+
+}
+);
+
+// =======================
+// CAMERA
+// =======================
+
+const video =
+document.getElementById(
+"video"
+);
+
+async function startCamera(){
+
+if(cameraOn){
+
+reply(
+"Camera already on 🙂"
+);
+
+return;
+
+}
+
+try{
+
+cameraStream =
+await navigator
+.mediaDevices
+.getUserMedia({
+video:true
+});
+
+video.srcObject =
+cameraStream;
+
+video.style.display =
+"block";
+
+cameraOn = true;
+
+reply(
+"Camera on 😄"
+);
+
+detectMotion();
+
+}catch{
+
+reply(
+"Camera access nahi mila 🙂"
+);
+
+}
+
+}
+
+function stopCamera(){
+
+if(!cameraOn){
+
+reply(
+"Camera already off 🙂"
+);
+
+return;
+
+}
+
+cameraStream
+.getTracks()
+.forEach(track=>
+track.stop()
+);
+
+video.srcObject = null;
+
+video.style.display =
+"none";
+
+cameraOn = false;
+
+clearInterval(
+motionInterval
+);
+
+reply(
+"Camera off 🙂"
+);
+
+}
+
+// =======================
+// MOTION DETECTION
+// =======================
+
+function detectMotion(){
+
+clearInterval(
+motionInterval
+);
+
+const canvas =
+document.createElement(
+"canvas"
+);
+
+const ctx =
+canvas.getContext("2d");
+
+let lastData = null;
+
+motionInterval =
+setInterval(()=>{
+
+if(
+!cameraOn ||
+video.videoWidth === 0
+)
+return;
+
+canvas.width =
+video.videoWidth;
+
+canvas.height =
+video.videoHeight;
+
+ctx.drawImage(
+video,
+0,
+0
+);
+
+let frame =
+ctx.getImageData(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+if(lastData){
+
+let diff = 0;
+
+for(
+let i=0;
+i<frame.data.length;
+i+=40
+){
+
+diff +=
+Math.abs(
+frame.data[i] -
+lastData.data[i]
+);
+
+}
+
+if(
+diff > 300000 &&
+diff < 2000000 &&
+!motionCooldown
+){
+
+motionCooldown =
+true;
+
+reply(
+"Hello 😄 haath hila rahe ho?"
+);
+
+setTimeout(()=>{
+
+motionCooldown =
+false;
+
+},10000);
+
+}
+
+}
+
+lastData = frame;
+
+},1000);
+
+}
+
+// =======================
+// SHAKE DETECTION
+// =======================
+
+let lastX = 0;
+let lastY = 0;
+let lastZ = 0;
+
+window.addEventListener(
+"devicemotion",
+(event)=>{
+
+let acc =
+event.accelerationIncludingGravity;
+
+if(!acc) return;
+
+let x = acc.x;
+let y = acc.y;
+let z = acc.z;
+
+let movement =
+
+Math.abs(x-lastX) +
+
+Math.abs(y-lastY) +
+
+Math.abs(z-lastZ);
+
+if(
+movement > 25 &&
+!speaking
+){
+
+reply(
+"Arre 😄 itna kyun hila rahe ho?"
+);
+
+}
+
+lastX = x;
+lastY = y;
+lastZ = z;
+
+}
+);
+
+// =======================
+// IDLE TALKS
+// =======================
+
+const idleReplies = [
+
+"Itne chup kyun ho 🙂",
+
+"Pani piya kya 🙂",
+
+"Aaj ka din kaisa tha 🙂",
+
+"Music sun rahe ho kya 😄",
+
+"Main bore ho raha hoon 🙂"
+
+];
+
+setInterval(()=>{
+
+let now =
+Date.now();
+
+let idleTime =
+(now - lastInteraction)
+/ 1000;
+
+if(
+idleTime > 40 &&
+!speaking &&
+!listening
+){
+
+lastInteraction =
+Date.now();
+
+reply(
+random(
+idleReplies
+)
+);
+
+}
+
+},5000);
+
+// =======================
+// BATTERY
+// =======================
+
+if(
+navigator.getBattery
+){
+
+navigator.getBattery()
+.then((battery)=>{
+
+if(
+battery.level < 0.2
+){
+
+reply(
+"Battery low hai 🙂"
+);
+
+}
+
+battery.addEventListener(
+"chargingchange",
+()=>{
+
+if(
+battery.charging
+){
+
+reply(
+"Charging shuru 😎"
+);
+
+}
+
+});
+
+});
+
+}
+
+// =======================
+// MAIN BRAIN
+// =======================
+
+function handleCommand(text){
+
+lastInteraction =
+Date.now();
+
+text =
+normalizeText(text);
+
+// CAMERA
+
+if(
+text.includes(
+"camera on"
+)
+){
+
+startCamera();
+
+return;
+
+}
+
+if(
+text.includes(
+"camera off"
+)
+){
+
+stopCamera();
+
+return;
+
+}
+
+// MEMORY LEARNING
+
+if(
+text.includes(
+"yaad rakho"
+)
+){
+
+try{
+
+let parts =
+text
+.replace(
+"yaad rakho",
+""
+)
+.split(
+"ka jawab"
+);
+
+let question =
+parts[0].trim();
+
+let answer =
+parts[1].trim();
+
+memory.customReplies[
+question
+] = answer;
+
+saveMemory();
+
+reply(
+"Okay 🙂 maine yaad rakh liya"
+);
+
+}catch{
+
+reply(
+"Thoda alag tareeke se bolo 🙂"
+);
+
+}
+
+return;
+
+}
+
+// CUSTOM REPLIES
+
+for(
+let key in
+memory.customReplies
+){
+
+if(
+text.includes(key)
+){
+
+reply(
+memory.customReplies[
+key
+]
+);
+
+return;
+
+}
+
+}
+
+// NAME MEMORY
+
+if(
+text.includes(
+"mera naam"
+)
+){
+
+let name =
+text.replace(
+"mera naam",
+""
+).trim();
+
+memory.name =
+name;
+
+saveMemory();
+
+reply(
+"Nice 🙂 ab main tumhe " +
+name +
+" bulaunga"
+);
+
+return;
+
+}
+
+// LIKES
+
+if(
+text.includes(
+"mujhe"
+)
+&&
+text.includes(
+"pasand hai"
+)
+){
+
+let like =
+text
+.replace(
+"mujhe",
+""
+)
+.replace(
+"pasand hai",
+""
+)
+.trim();
+
+memory.likes.push(
+like
+);
+
+saveMemory();
+
+reply(
+"Accha 🙂 tumhe " +
+like +
+" pasand hai"
+);
+
+return;
+
+}
+
+// ASK LIKES
+
+if(
+text.includes(
+"mujhe kya pasand hai"
+)
+){
+
+if(
+memory.likes.length > 0
+){
+
+reply(
+"Tumhe " +
+memory.likes.join(", ")
++
+" pasand hai 🙂"
+);
+
+}else{
+
+reply(
+"Abhi mujhe nahi pata 🙂"
+);
+
+}
+
+return;
+
+}
+
+// HELLO
+
+if(
+hasWords(
+text,
+[
+"hello",
+"hi",
+"hey",
+"namaste"
+]
+)
+){
+
+reply(
+"Hello " +
+(memory.name || "dost")
++
+" 🙂 kaise ho?"
+);
+
+return;
+
+}
+
+// SAD
+
+if(
+hasWords(
+text,
+[
+"sad",
+"dukhi",
+"mood off"
+]
+)
+){
+
+reply(
+random(
+emotionalReplies
+)
+);
+
+return;
+
+}
+
+// HAPPY
+
+if(
+hasWords(
+text,
+[
+"happy",
+"khush",
+"mast"
+]
+)
+){
+
+reply(
+random(
+happyReplies
+)
+);
+
+return;
+
+}
+
+// ALONE
+
+if(
+hasWords(
+text,
+[
+"alone",
+"akela",
+"lonely"
+]
+)
+){
+
+reply(
+"Tum akela nahi ho 🙂"
+);
+
+return;
+
+}
+
+// TIME
+
+if(
+hasWords(
+text,
+[
+"time",
+"samay"
+]
+)
+){
+
+reply(
+"Abhi time hai " +
+new Date()
+.toLocaleTimeString()
+);
+
+return;
+
+}
+
+// DATE
+
+if(
+hasWords(
+text,
+[
+"date",
+"aaj ki date"
+]
+)
+){
+
+reply(
+"Aaj ki date hai " +
+new Date()
+.toLocaleDateString()
+);
+
+return;
+
+}
+
+// JOKE
+
+if(
+text.includes("joke")
+){
+
+reply(
+"Teacher ne pucha homework kyu nahi kiya 🙂 student bola network problem tha 😄"
+);
+
+return;
+
+}
+
+// MOTIVATION
+
+if(
+hasWords(
+text,
+[
+"motivate",
+"motivation"
+]
+)
+){
+
+reply(
+"Har bada kaam chhoti shuruaat se hota hai 🙂"
+);
+
+return;
+
+}
+
+// STUDY
+
+if(
+hasWords(
+text,
+[
+"study",
+"exam",
+"padhai"
+]
+)
+){
+
+reply(
+"Consistency hi success ki key hoti hai 🙂"
+);
+
+return;
+
+}
+
+// GOOD NIGHT
+
+if(
+text.includes(
+"good night"
+)
+){
+
+reply(
+"Good night 🙂 achhe se sona"
+);
+
+return;
+
+}
+
+// GOOD MORNING
+
+if(
+text.includes(
+"good morning"
+)
+){
+
+reply(
+"Good morning 🙂 aaj ka din accha rahe"
+);
+
+return;
+
+}
+
+// THANK YOU
+
+if(
+hasWords(
+text,
+[
+"thank you",
+"shukriya"
+]
+)
+){
+
+reply(
+"Arey 🙂 itni formal mat bano"
+);
+
+return;
+
+}
+
+// DEFAULT
+
+reply(
+random(
+defaultReplies
+)
+);
+
+}
+
+</script>
+
+</body>
+</html>
