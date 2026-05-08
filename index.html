@@ -496,7 +496,10 @@ speak(text);
 // =======================
 
 function handleCommand(text){
-  
+let cameraOn = false;
+let cameraStream = null;
+let lastInteraction = Date.now();
+
 lastInteraction =
 Date.now();
 
