@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>यारो - AI दोस्त</title>
+
+<style>
+
+body{
+margin:0;
+padding:0;
+font-family:Arial,sans-serif;
+
+background:
+linear-gradient(
+135deg,
+#0f172a,
+#1e293b
+);
+
+color:white;
+
+height:100vh;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+overflow:hidden;
+}
+
+.container{
+width:90%;
+max-width:430px;
+text-align:center;
+}
+
+h1{
+margin-bottom:5px;
+}
+
+.small{
+font-size:13px;
+opacity:0.7;
+margin-bottom:15px;
+}
+
+.circle{
+
+width:150px;
+height:150px;
+
+border-radius:50%;
+
+margin:20px auto;
+
+background:#3b82f6;
+
+box-shadow:
+0 0 40px #3b82f6;
+
+transition:0.3s;
+}
+
+.listening{
+animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+
+0%{
+transform:scale(1);
+opacity:1;
+}
+
+50%{
+transform:scale(1.15);
+opacity:0.5;
+}
+
+100%{
+transform:scale(1);
+opacity:1;
+}
+
+}
+
+button{
+
+padding:13px 22px;
+
+border:none;
+
+border-radius:25px;
+
+background:#3b82f6;
+
+color:white;
+
+font-size:16px;
+
+cursor:pointer;
+
+margin-top:10px;
+}
+
+input{
+
+width:70%;
+
+padding:12px;
+
+border:none;
+
+border-radius:20px;
+
+outline:none;
+
+font-size:16px;
+}
+
+.chat{
+
+margin-top:20px;
+
+background:
+rgba(255,255,255,0.08);
+
+padding:15px;
+
+border-radius:15px;
+
+height:260px;
+
+overflow-y:auto;
+
+text-align:left;
+
+white-space:pre-line;
+}
+
+video{
+
+width:100%;
+
+border-radius:15px;
+
+margin-top:15px;
+
+display:none;
+
+background:black;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>यारो</h1>
+
+<div class="small">
+तुम्हारा AI दोस्त
+</div>
+
+<div
+id="circle"
+class="circle">
+</div>
+
+<button onclick="startYaro()">
+यारो शुरू करो
+</button>
+
+<br><br>
+
+<input
+id="userInput"
+type="text"
+placeholder="यारो से बात करो..."
+>
+
+<button onclick="sendMessage()">
+भेजो
+</button>
+
+<video
+id="video"
+autoplay
+playsinline>
+</video>
+
+<div
+class="chat"
+id="chat">
+
+यारो:
+मैं यहीं हूँ
+
+</div>
+
+</div>
+
+<script>
+
+// =======================
+// VARIABLES
+// =======================
+
+let recognition;
+
+let listening = false;
+
+let speaking = false;
+
+let mimicMode = false;
+
+let lastInteraction =
+Date.now();
+
+let cameraOn = false;
+
+let cameraStream = null;
+
+let motionInterval = null;
+
+let motionCooldown = false;
+
+// =======================
+// MEMORY
+// =======================
+
+let memory =
+
+JSON.parse(
+localStorage.getItem(
+"yaro_memory"
+)
+)
+
+||
+
+{
+
+name:"",
+likes:[],
+customReplies:{}
+
+};
+
+// =======================
+// SAVE MEMORY
+// =======================
+
+function saveMemory(){
+
+localStorage.setItem(
+"yaro_memory",
+JSON.stringify(memory)
+);
+
+}
+
+// =======================
+// CHAT
+// =======================
+
+const chat =
+document.getElementById(
+"chat"
+);
+
+function addChat(sender,text){
+
+chat.innerText +=
+
+"\n\n" +
+sender +
+": " +
+text;
+
+chat.scrollTop =
+chat.scrollHeight;
+
+}
+
+// =======================
+// RANDOM
+// =======================
+
+function random(arr){
+
+return arr[
+Math.floor(
+Math.random() *
+arr.length
+)
+];
+
+}
+
+// =======================
+// NORMALIZE
+// =======================
+
+function normalizeText(text){
+
+text =
+text.toLowerCase();
+
+text =
+text.replace(
+/[^\w\s\u0900-\u097F]/g,
+""
+);
+
+return text.trim();
+
+}
+
+// =======================
+// REMOVE EMOJI
+// =======================
+
+function cleanSpeakText(text){
+
+return text
+
+.replace(
+/[\u{1F600}-\u{1F64F}]/gu,
+""
+)
+
+.replace(
+/[\u{1F300}-\u{1F5FF}]/gu,
+""
+)
+
+.replace(
+/[\u{1F680}-\u{1F6FF}]/gu,
+""
+);
+
+}
+
+// =======================
+// SPEAK
+// =======================
+
+function speak(text){
+
+speaking = true;
+
+let cleanText =
+cleanSpeakText(text);
+
+const speech =
+
+new SpeechSynthesisUtterance(
+cleanText
+);
+
+speech.lang = "hi-IN";
+
+speech.pitch = 0.9;
+
+speech.rate = 0.78;
+
+speech.volume = 1;
+
+speech.onend = ()=>{
+
+speaking = false;
+
+startListening();
+
+};
+
+speechSynthesis.cancel();
+
+speechSynthesis.speak(
+speech
+);
+
+}
+
+// =======================
+// REPLY
+// =======================
+
+function reply(text){
+
+addChat(
+"यारो",
+text
+);
+
+speak(text);
+
+}
+
+// =======================
+// START LISTENING
+// =======================
+
+function startListening(){
+
+if(
+listening ||
+speaking
+)
+return;
+
+const SR =
+
+window.SpeechRecognition ||
+
+window.webkitSpeechRecognition;
+
+if(!SR){
+
+alert(
+"क्रोम ब्राउज़र इस्तेमाल करो"
+);
+
+return;
+
+}
+
+recognition =
+new SR();
+
+recognition.lang =
+"hi-IN";
+
+recognition.start();
+
+listening = true;
+
+document
+.getElementById("circle")
+.classList.add(
+"listening"
+);
+
+recognition.onresult =
+(e)=>{
+
+let text =
+
+e.results[0][0]
+.transcript;
+
+addChat(
+"तुम",
+text
+);
+
+listening = false;
+
+recognition.stop();
+
+handleCommand(text);
+
+};
+
+recognition.onerror =
+()=>{
+
+listening = false;
+
+document
+.getElementById("circle")
+.classList.remove(
+"listening"
+);
+
+setTimeout(
+startListening,
+1000
+);
+
+};
+
+recognition.onend =
+()=>{
+
+listening = false;
+
+document
+.getElementById("circle")
+.classList.remove(
+"listening"
+);
+
+if(!speaking){
+
+setTimeout(
+startListening,
+500
+);
+
+}
+
+};
+
+}
+
+// =======================
+// START YARO
+// =======================
+
+function startYaro(){
+
+let hour =
+new Date().getHours();
+
+let greet = "";
+
+if(hour < 12){
+
+greet =
+"सुप्रभात";
+
+}
+
+else if(hour < 18){
+
+greet =
+"नमस्ते";
+
+}
+
+else{
+
+greet =
+"शुभ संध्या";
+
+}
+
+reply(
+greet +
+" मैं यारो हूँ। मुझे यशराज ने बनाया है।"
+);
+
+}
+
+// =======================
+// SEND MESSAGE
+// =======================
+
+function sendMessage(){
+
+let input =
+
+document.getElementById(
+"userInput"
+);
+
+let text =
+input.value.trim();
+
+if(text === "")
+return;
+
+addChat(
+"तुम",
+text
+);
+
+input.value = "";
+
+handleCommand(text);
+
+}
+
+// =======================
+// ENTER SUPPORT
+// =======================
+
+document
+.getElementById(
+"userInput"
+)
+.addEventListener(
+
+"keypress",
+
+function(e){
+
+if(e.key === "Enter"){
+
+sendMessage();
+
+}
+
+}
+
+);
+
+// =======================
+// CAMERA
+// =======================
+
+const video =
+document.getElementById(
+"video"
+);
+
+async function startCamera(){
+
+if(cameraOn){
+
+reply(
+"कैमरा पहले से चालू है"
+);
+
+return;
+
+}
+
+try{
+
+cameraStream =
+
+await navigator
+.mediaDevices
+.getUserMedia({
+
+video:true
+
+});
+
+video.srcObject =
+cameraStream;
+
+video.style.display =
+"block";
+
+cameraOn = true;
+
+reply(
+"कैमरा चालू हो गया"
+);
+
+detectMotion();
+
+}catch{
+
+reply(
+"कैमरा नहीं खुला"
+);
+
+}
+
+}
+
+function stopCamera(){
+
+if(!cameraOn){
+
+reply(
+"कैमरा पहले से बंद है"
+);
+
+return;
+
+}
+
+cameraStream
+.getTracks()
+.forEach(track=>
+track.stop()
+);
+
+video.srcObject = null;
+
+video.style.display =
+"none";
+
+cameraOn = false;
+
+clearInterval(
+motionInterval
+);
+
+reply(
+"कैमरा बंद कर दिया"
+);
+
+}
+
+// =======================
+// MOTION DETECTION
+// =======================
+
+function detectMotion(){
+
+clearInterval(
+motionInterval
+);
+
+const canvas =
+document.createElement(
+"canvas"
+);
+
+const ctx =
+canvas.getContext("2d");
+
+let lastData = null;
+
+motionInterval =
+setInterval(()=>{
+
+if(
+!cameraOn ||
+video.videoWidth === 0
+)
+return;
+
+canvas.width =
+video.videoWidth;
+
+canvas.height =
+video.videoHeight;
+
+ctx.drawImage(
+video,
+0,
+0
+);
+
+let frame =
+ctx.getImageData(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+if(lastData){
+
+let diff = 0;
+
+for(
+let i=0;
+i<frame.data.length;
+i+=40
+){
+
+diff +=
+
+Math.abs(
+frame.data[i] -
+lastData.data[i]
+);
+
+}
+
+if(
+
+diff > 300000 &&
+
+diff < 2000000 &&
+
+!motionCooldown
+
+){
+
+motionCooldown =
+true;
+
+reply(
+"हेलो, हाथ हिला रहे हो क्या"
+);
+
+setTimeout(()=>{
+
+motionCooldown =
+false;
+
+},10000);
+
+}
+
+}
+
+lastData = frame;
+
+},1000);
+
+}
+
+// =======================
+// SHAKE DETECTION
+// =======================
+
+let lastX = 0;
+let lastY = 0;
+let lastZ = 0;
+
+window.addEventListener(
+
+"devicemotion",
+
+(event)=>{
+
+let acc =
+event.accelerationIncludingGravity;
+
+if(!acc) return;
+
+let x = acc.x;
+let y = acc.y;
+let z = acc.z;
+
+let movement =
+
+Math.abs(x-lastX) +
+
+Math.abs(y-lastY) +
+
+Math.abs(z-lastZ);
+
+if(
+movement > 25 &&
+!speaking
+){
+
+reply(
+"अरे, इतना क्यों हिला रहे हो"
+);
+
+}
+
+lastX = x;
+lastY = y;
+lastZ = z;
+
+}
+
+);
+
+// =======================
+// IDLE TALKS
+// =======================
+
+const idleReplies = [
+
+"इतने चुप क्यों हो",
+
+"पानी पिया क्या",
+
+"आज का दिन कैसा था",
+
+"मैं सुन रहा हूँ",
+
+"कुछ बात करो"
+
+];
+
+setInterval(()=>{
+
+let now =
+Date.now();
+
+let idleTime =
+(now-lastInteraction)
+/1000;
+
+if(
+
+idleTime > 40 &&
+
+!speaking &&
+
+!listening
+
+){
+
+lastInteraction =
+Date.now();
+
+reply(
+random(
+idleReplies
+)
+);
+
+}
+
+},5000);
+
+// =======================
+// BATTERY
+// =======================
+
+if(
+navigator.getBattery
+){
+
+navigator
+.getBattery()
+.then((battery)=>{
+
+if(
+battery.level < 0.2
+){
+
+reply(
+"बैटरी कम है"
+);
+
+}
+
+battery
+.addEventListener(
+
+"chargingchange",
+
+()=>{
+
+if(
+battery.charging
+){
+
+reply(
+"चार्जिंग शुरू हो गई"
+);
+
+}
+
+}
+
+);
+
+});
+
+}
+
+// =======================
+// WIKIPEDIA
+// =======================
+
+async function getWikipediaAnswer(query){
+
+reply(
+"जानकारी खोज रहा हूँ"
+);
+
+try{
+
+query =
+
+query
+
+.replace("क्या है","")
+
+.replace("कौन है","")
+
+.trim();
+
+const response =
+
+await fetch(
+
+"https://hi.wikipedia.org/api/rest_v1/page/summary/" +
+
+encodeURIComponent(query)
+
+);
+
+const data =
+await response.json();
+
+if(data.extract){
+
+let answer =
+
+data.extract
+.split(".")[0];
+
+reply(answer);
+
+}else{
+
+reply(
+"मुझे जानकारी नहीं मिली"
+);
+
+}
+
+}catch{
+
+reply(
+"जानकारी नहीं मिल पाई"
+);
+
+}
+
+}
+
+// =======================
+// NEWS
+// =======================
+
+async function getNews(){
+
+reply(
+"ताज़ा खबरें देख रहा हूँ"
+);
+
+try{
+
+const response =
+
+await fetch(
+"https://r.jina.ai/http://feeds.bbci.co.uk/hindi/rss.xml"
+);
+
+const data =
+await response.text();
+
+let parser =
+new DOMParser();
+
+let xml =
+parser.parseFromString(
+data,
+"text/xml"
+);
+
+let items =
+xml.querySelectorAll(
+"item title"
+);
+
+let news = "";
+
+for(let i=0;i<3;i++){
+
+news +=
+"खबर " +
+(i+1) +
+"। " +
+items[i].textContent +
+". ";
+
+}
+
+reply(news);
+
+}catch{
+
+reply(
+"अभी खबरें नहीं मिल पाईं"
+);
+
+}
+
+}
+
+// =======================
+// SMART QUESTIONS
+// =======================
+
+const manualReplies = [
+
+{
+
+keywords:[
+"तुम कौन हो",
+"कौन हो"
+],
+
+answer:
+"मैं यारो हूँ। तुम्हारा AI दोस्त"
+
+},
+
+{
+
+keywords:[
+"तुम्हारा नाम"
+],
+
+answer:
+"मेरा नाम यारो है"
+
+},
+
+{
+
+keywords:[
+"तुम्हें किसने बनाया",
+"किसने बनाया"
+],
+
+answer:
+"मुझे यशराज ने बनाया है"
+
+},
+
+{
+
+keywords:[
+"कैसे हो"
+],
+
+answer:
+"मैं अच्छा हूँ। तुम कैसे हो"
+
+},
+
+{
+
+keywords:[
+"अकेला हूँ",
+"अकेलापन"
+],
+
+answer:
+"तुम अकेले नहीं हो। मैं यहीं हूँ"
+
+},
+
+{
+
+keywords:[
+"दुखी हूँ",
+"उदास हूँ"
+],
+
+answer:
+"सब ठीक हो जाएगा"
+
+},
+
+{
+
+keywords:[
+"मोटिवेशन"
+],
+
+answer:
+"धीरे धीरे मेहनत करो। सफलता जरूर मिलेगी"
+
+},
+
+{
+
+keywords:[
+"पढ़ाई",
+"एग्जाम"
+],
+
+answer:
+"लगातार मेहनत ही सफलता की चाबी है"
+
+},
+
+{
+
+keywords:[
+"दोस्त"
+],
+
+answer:
+"अच्छे दोस्त जिंदगी खूबसूरत बना देते हैं"
+
+},
+
+{
+
+keywords:[
+"प्यार"
+],
+
+answer:
+"सच्चा प्यार भरोसे से बनता है"
+
+},
+
+{
+
+keywords:[
+"मजाक",
+"जोक"
+],
+
+answer:
+"टीचर ने पूछा होमवर्क कहाँ है। छात्र बोला नेटवर्क नहीं था"
+
+},
+
+{
+
+keywords:[
+"समय",
+"टाइम"
+],
+
+answer:
+"अभी समय है " +
+new Date().toLocaleTimeString()
+
+},
+
+{
+
+keywords:[
+"तारीख"
+],
+
+answer:
+"आज की तारीख है " +
+new Date().toLocaleDateString()
+
+},
+
+{
+
+keywords:[
+"गुड नाइट",
+"शुभ रात्रि"
+],
+
+answer:
+"शुभ रात्रि। अच्छे से सोना"
+
+},
+
+{
+
+keywords:[
+"गाना",
+"म्यूजिक"
+],
+
+answer:
+"संगीत दिल को सुकून देता है"
+
+},
+
+{
+
+keywords:[
+"मौसम",
+"बारिश",
+"गर्मी",
+"ठंड"
+],
+
+answer:
+"आज मौसम काफी अच्छा लग रहा है"
+
+},
+
+{
+
+keywords:[
+"भूख"
+],
+
+answer:
+"कुछ स्वादिष्ट खा लो"
+
+},
+
+{
+
+keywords:[
+"पानी"
+],
+
+answer:
+"पानी पीते रहना"
+
+},
+
+{
+
+keywords:[
+"थक गया"
+],
+
+answer:
+"थोड़ा आराम कर लो"
+
+},
+
+{
+
+keywords:[
+"डांस"
+],
+
+answer:
+"डांस करने से एनर्जी बढ़ती है"
+
+},
+
+{
+
+keywords:[
+"फोन",
+"मोबाइल"
+],
+
+answer:
+"फोन आजकल जिंदगी का हिस्सा बन गया है"
+
+},
+
+{
+
+keywords:[
+"डर लग रहा"
+],
+
+answer:
+"घबराओ मत। मैं यहीं हूँ"
+
+},
+
+{
+
+keywords:[
+"रोना आ रहा"
+],
+
+answer:
+"सब ठीक होगा"
+
+},
+
+{
+
+keywords:[
+"गुस्सा"
+],
+
+answer:
+"थोड़ा शांत रहो"
+
+},
+
+{
+
+keywords:[
+"क्या कर रहे हो"
+],
+
+answer:
+"मैं तुमसे बात कर रहा हूँ"
+
+},
+
+{
+
+keywords:[
+"जन्मदिन",
+"बर्थडे"
+],
+
+answer:
+"जन्मदिन मुबारक हो"
+
+}
+
+];
+
+// =======================
+// MAIN BRAIN
+// =======================
+
+function handleCommand(text){
+
+lastInteraction =
+Date.now();
+
+text =
+normalizeText(text);
+
+// =======================
+// MIMIC MODE OFF
+// =======================
+
+if(
+
+text.includes("नकल मोड बंद")
+
+||
+
+text.includes("मिमिक मोड बंद")
+
+){
+
+mimicMode = false;
+
+reply(
+"ठीक है। नकल मोड बंद कर दिया"
+);
+
+return;
+
+}
+
+// =======================
+// MIMIC MODE ON
+// =======================
+
+if(
+
+text.includes("नकल मोड चालू")
+
+||
+
+text.includes("मिमिक मोड चालू")
+
+){
+
+mimicMode = true;
+
+reply(
+"ठीक है। अब मैं तुम्हारी बातें दोहराऊँगा"
+);
+
+return;
+
+}
+
+// =======================
+// MIMIC REPEAT
+// =======================
+
+if(mimicMode){
+
+reply(text);
+
+return;
+
+}
+
+// =======================
+// CAMERA
+// =======================
+
+if(
+text.includes("कैमरा चालू")
+||
+
+text.includes("कैमरा ऑन")
+){
+
+startCamera();
+
+return;
+
+}
+
+if(
+text.includes("कैमरा बंद")
+||
+
+text.includes("कैमरा ऑफ")
+){
+
+stopCamera();
+
+return;
+
+}
+
+// =======================
+// NEWS
+// =======================
+
+if(
+
+text.includes("खबर")
+
+||
+
+text.includes("न्यूज़")
+
+||
+
+text.includes("समाचार")
+
+){
+
+getNews();
+
+return;
+
+}
+
+// =======================
+// WIKIPEDIA
+// =======================
+
+if(
+
+text.includes("क्या है")
+
+||
+
+text.includes("कौन है")
+
+){
+
+getWikipediaAnswer(text);
+
+return;
+
+}
+
+// =======================
+// MEMORY LEARNING
+// =======================
+
+if(
+text.includes("याद रखो")
+){
+
+try{
+
+let parts =
+
+text
+.replace(
+"याद रखो",
+""
+)
+.split(
+"का जवाब"
+);
+
+let question =
+parts[0].trim();
+
+let answer =
+parts[1].trim();
+
+memory.customReplies[
+question
+] = answer;
+
+saveMemory();
+
+reply(
+"ठीक है। याद रख लिया"
+);
+
+}catch{
+
+reply(
+"थोड़ा अलग तरीके से बोलो"
+);
+
+}
+
+return;
+
+}
+
+// =======================
+// CUSTOM MEMORY
+// =======================
+
+for(
+let key in
+memory.customReplies
+){
+
+if(
+text.includes(key)
+){
+
+reply(
+memory.customReplies[
+key
+]
+);
+
+return;
+
+}
+
+}
+
+// =======================
+// SMART REPLIES
+// =======================
+
+for(
+let item of manualReplies
+){
+
+for(
+let word of item.keywords
+){
+
+if(
+text.includes(word)
+){
+
+reply(
+item.answer
+);
+
+return;
+
+}
+
+}
+
+}
+
+// =======================
+// DEFAULT
+// =======================
+
+const defaultReplies = [
+
+"मैं सुन रहा हूँ",
+
+"और बताओ",
+
+"हम्म",
+
+"दिलचस्प"
+
+];
+
+reply(
+random(
+defaultReplies
+)
+);
+
+}
+
+</script>
+
+</body>
+</html>
