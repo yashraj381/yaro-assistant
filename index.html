@@ -231,6 +231,7 @@ let motionInterval = null;
 
 let motionCooldown = false;
 
+let fingerMode = false;
 // =======================
 // MEMORY
 // =======================
@@ -724,6 +725,9 @@ video.videoWidth === 0
 )
 return;
 
+if(fingerMode)
+return;
+  
 canvas.width =
 video.videoWidth;
 
@@ -1387,7 +1391,57 @@ Date.now();
 
 text =
 normalizeText(text);
+// =========================
+// FINGER MODE ON
+// =========================
 
+if(
+
+text.includes("फिंगर काउंटिंग मोड ऑन")
+
+||
+
+text.includes("फिंगर मोड ऑन")
+
+){
+
+fingerMode = true;
+
+startHandTracking();
+
+reply(
+"फिंगर काउंटिंग मोड चालू कर दिया"
+);
+
+return;
+
+}
+
+// =========================
+// FINGER MODE OFF
+// =========================
+
+if(
+
+text.includes("फिंगर काउंटिंग मोड बंद")
+
+||
+
+text.includes("फिंगर मोड बंद")
+
+){
+
+fingerMode = false;
+
+stopHandTracking();
+
+reply(
+"फिंगर काउंटिंग मोड बंद कर दिया"
+);
+
+return;
+
+  }
 // =======================
 // MIMIC MODE OFF
 // =======================
