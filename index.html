@@ -189,6 +189,24 @@ placeholder="यारो से बात करो..."
 भेजो
 </button>
 
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+<canvas
+id="handCanvas"
+style="
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+pointer-events:none;
+">
+</canvas>
+  
 <video
 id="video"
 autoplay
@@ -1702,6 +1720,236 @@ defaultReplies
 
 }
 
+// =========================
+// HAND VARIABLES
+// =========================
+
+const canvasElement =
+document.getElementById(
+"handCanvas"
+);
+
+const canvasCtx =
+canvasElement.getContext("2d");
+
+let lastFingerCount = -1;
+
+// =========================
+// START HAND TRACKING
+// =========================
+
+function startHandTracking(){
+
+if(!cameraOn){
+
+reply(
+"पहले कैमरा चालू करो"
+);
+
+return;
+
+}
+
+reply(
+"उंगलियाँ पहचान रहा हूँ"
+);
+
+const hands = new Hands({
+
+locateFile:(file)=>{
+
+return
+`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+
+}
+
+});
+
+hands.setOptions({
+
+maxNumHands:1,
+
+modelComplexity:1,
+
+minDetectionConfidence:0.7,
+
+minTrackingConfidence:0.7
+
+});
+
+hands.onResults(onResults);
+
+const camera = new Camera(video, {
+
+onFrame: async ()=>{
+
+if(fingerMode){
+
+await hands.send({
+image: video
+});
+
+}
+
+},
+
+width:640,
+height:480
+
+});
+
+camera.start();
+
+}
+
+// =========================
+// COUNT FINGERS
+// =========================
+
+function countFingers(landmarks){
+
+let fingers = 0;
+
+// Thumb
+
+if(
+landmarks[4].x <
+landmarks[3].x
+){
+
+fingers++;
+
+}
+
+// Index
+
+if(
+landmarks[8].y <
+landmarks[6].y
+){
+
+fingers++;
+
+}
+
+// Middle
+
+if(
+landmarks[12].y <
+landmarks[10].y
+){
+
+fingers++;
+
+}
+
+// Ring
+
+if(
+landmarks[16].y <
+landmarks[14].y
+){
+
+fingers++;
+
+}
+
+// Pinky
+
+if(
+landmarks[20].y <
+landmarks[18].y
+){
+
+fingers++;
+
+}
+
+return fingers;
+
+}
+
+// =========================
+// RESULTS
+// =========================
+
+function onResults(results){
+
+canvasElement.width =
+video.videoWidth;
+
+canvasElement.height =
+video.videoHeight;
+
+canvasCtx.save();
+
+canvasCtx.clearRect(
+0,
+0,
+canvasElement.width,
+canvasElement.height
+);
+
+if(
+results.multiHandLandmarks
+){
+
+for(
+const landmarks of
+results.multiHandLandmarks
+){
+
+drawConnectors(
+canvasCtx,
+landmarks,
+HAND_CONNECTIONS
+);
+
+drawLandmarks(
+canvasCtx,
+landmarks
+);
+
+let count =
+countFingers(
+landmarks
+);
+
+if(
+count !== lastFingerCount
+){
+
+lastFingerCount =
+count;
+
+reply(
+"मुझे " +
+count +
+" उंगलियाँ दिख रही हैं"
+);
+
+}
+
+}
+
+}
+
+canvasCtx.restore();
+
+}
+
+// =========================
+// STOP HAND TRACKING
+// =========================
+
+function stopHandTracking(){
+
+reply(
+"उंगली पहचान बंद कर दी"
+);
+
+  }  
+  
 </script>
 
 </body>
