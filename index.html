@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>For Gunnu 💖</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Poppins',sans-serif;
+    }
+
+    body{
+      background:linear-gradient(135deg,#050505,#111,#ff6fa9);
+      overflow-x:hidden;
+      color:white;
+    }
+
+    .intro-screen{
+      width:100%;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      position:fixed;
+      top:0;
+      left:0;
+      z-index:999;
+      background:linear-gradient(135deg,#000,#1a1a1a,#ff5e9c);
+      transition:1s;
+    }
+
+    .card-closed{
+      width:280px;
+      height:380px;
+      border-radius:25px;
+      background:rgba(255,255,255,0.08);
+      backdrop-filter:blur(14px);
+      border:2px solid rgba(255,255,255,0.15);
+      box-shadow:0 0 45px rgba(255,105,180,0.45);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      cursor:pointer;
+      animation:float 3s ease-in-out infinite;
+      text-align:center;
+      padding:20px;
+    }
+
+    .card-closed h1{
+      font-size:32px;
+      color:#ffd4e7;
+      margin-bottom:15px;
+    }
+
+    .card-closed p{
+      color:#eee;
+      font-size:15px;
+      line-height:1.7;
+    }
+
+    .heart{
+      font-size:60px;
+      animation:heartbeat 1.5s infinite;
+      margin-bottom:15px;
+    }
+
+    .main-content{
+      display:none;
+      padding:25px 18px 80px;
+      animation:fadeIn 1.5s ease;
+    }
+
+    .hero{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+    }
+
+    .guide-character{
+      margin-bottom:35px;
+      display:flex;
+      align-items:center;
+      gap:15px;
+      background:rgba(255,255,255,0.08);
+      padding:15px 18px;
+      border-radius:25px;
+      backdrop-filter:blur(12px);
+      box-shadow:0 0 25px rgba(255,105,180,0.25);
+      animation:float 3s ease-in-out infinite;
+      cursor:pointer;
+    }
+
+    .doll{
+      font-size:55px;
+    }
+
+    .guide-text h3{
+      color:#ffd4e7;
+      margin-bottom:5px;
+      font-size:22px;
+    }
+
+    .guide-text p{
+      font-size:14px;
+      color:#fff;
+    }
+
+    .hero h1{
+      font-size:42px;
+      color:#ffd4ea;
+      margin-bottom:15px;
+      text-shadow:0 0 15px rgba(255,255,255,0.4);
+    }
+
+    .typing{
+      font-size:17px;
+      line-height:1.9;
+      max-width:340px;
+      color:#f8f8f8;
+      min-height:240px;
+    }
+
+    .memory-title{
+      text-align:center;
+      font-size:32px;
+      margin:40px 0 30px;
+      color:#ffd5e8;
+    }
+
+    .memory-card{
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.15);
+      border-radius:28px;
+      overflow:hidden;
+      margin-bottom:30px;
+      backdrop-filter:blur(14px);
+      box-shadow:0 0 35px rgba(255,105,180,0.25);
+      animation:slideUp 1.2s ease;
+    }
+
+    .memory-card img,
+    .memory-card video{
+      width:100%;
+      display:block;
+    }
+
+    .memory-text{
+      padding:20px;
+      text-align:center;
+      line-height:1.8;
+      color:#fff;
+      font-size:15px;
+    }
+
+    .quote-section{
+      margin-top:40px;
+      text-align:center;
+    }
+
+    .quote{
+      margin:25px 0;
+      font-size:18px;
+      color:#ffe7f1;
+      line-height:1.8;
+      animation:fadeIn 2s ease;
+    }
+
+    .end-card{
+      margin-top:50px;
+      background:rgba(255,255,255,0.08);
+      border-radius:30px;
+      padding:35px 25px;
+      text-align:center;
+      box-shadow:0 0 35px rgba(255,105,180,0.3);
+    }
+
+    .end-card h2{
+      font-size:34px;
+      margin-bottom:18px;
+      color:#ffd5ea;
+    }
+
+    .end-card p{
+      line-height:1.9;
+      color:#fff;
+    }
+
+    .floating-heart{
+      position:fixed;
+      bottom:-20px;
+      color:pink;
+      animation:rise linear forwards;
+      opacity:0.7;
+      z-index:1;
+    }
+
+    @keyframes rise{
+      to{
+        transform:translateY(-120vh);
+        opacity:0;
+      }
+    }
+
+    @keyframes heartbeat{
+      0%,100%{transform:scale(1);}
+      50%{transform:scale(1.2);}
+    }
+
+    @keyframes float{
+      0%,100%{transform:translateY(0px);}
+      50%{transform:translateY(-12px);}
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0;}
+      to{opacity:1;}
+    }
+
+    @keyframes slideUp{
+      from{
+        opacity:0;
+        transform:translateY(40px);
+      }
+      to{
+        opacity:1;
+        transform:translateY(0px);
+      }
+    }
+
+    audio{
+      display:none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Opening Card -->
+  <div class="intro-screen" id="intro">
+    <div class="card-closed" onclick="openCard()">
+      <div class="heart">💖</div>
+      <h1>For Gunnu</h1>
+      <p>
+        Ek chhota sa digital card...
+        kisi bahut special dost ke liye ✨
+        <br><br>
+        Tap to Open 💌
+      </p>
+    </div>
+  </div>
+
+  <!-- Music -->
+  <audio id="music" loop>
+    <source src="music.mp3" type="audio/mp3">
+  </audio>
+
+  <!-- Main Content -->
+  <div class="main-content" id="main">
+
+    <section class="hero">
+
+      <div class="guide-character" onclick="scrollToMemories()">
+        <div class="doll">🧸</div>
+        <div class="guide-text">
+          <h3>Yashuu 💖</h3>
+          <p>Hath pakdo... aage chalte hai ✨</p>
+        </div>
+      </div>
+      <h1>Hey Gunnu 💕</h1>
+
+      <div class="typing" id="typing"></div>
+    </section>
+
+    <!-- Memories -->
+    <h2 class="memory-title" id="memories">Our Cute Memories ✨</h2>
+
+    <div class="memory-card">
+      <img src="memory1.jpg" alt="memory">
+
+      <div class="memory-text">
+         ye moment mere liye bahut special tha 💖
+      </div>
+    </div>
+
+    <div class="memory-card">
+      <img src="memory2.jpg" alt="memory">
+
+      <div class="memory-text">
+        Aapki hasi literally pura mood thik kar deti hai ✨
+      </div>
+    </div>
+
+    <div class="memory-card">
+      <video controls>
+        <source src="memoryvideo.mp4" type="video/mp4">
+      </video>
+
+      <div class="memory-text">
+        Kuch moments sirf memories nahi hote...
+        comfort ban jaate hai 💕
+      </div>
+    </div>
+
+    <!-- Friendship Quotes -->
+    <section class="quote-section">
+
+      <div class="quote">
+        "Dosti perfect logo se nahi hoti...
+        perfect feelings se hoti hai 💖"
+      </div>
+
+      <div class="quote">
+        "Har friendship ki ek safe place hoti hai...
+        mere liye wo aap ho ✨"
+      </div>
+
+      <div class="quote">
+        "Agar aap udaas ho...
+        to sach me kuch achha nahi lagta 🥺"
+      </div>
+
+    </section>
+
+    <!-- Ending -->
+    <div class="end-card">
+      <h2>Smile Please 😊</h2>
+
+      <p>
+        Mujhe nahi pata mai perfect dost hu ya nahi...
+        par itna pata hai ki
+        aap mere liye genuinely important ho 💗
+        <br><br>
+        Naraj ho to mana lunga...
+        bas aap smile kar do Gunnu ✨
+      </p>
+    </div>
+
+  </div>
+
+  <script>
+
+    function openCard(){
+      document.getElementById('intro').style.opacity='0';
+
+      setTimeout(()=>{
+        document.getElementById('intro').style.display='none';
+        document.getElementById('main').style.display='block';
+      },1000);
+
+      document.getElementById('music').play();
+    }
+
+    const text = `
+Mujhe nahi pata aap mujhse naraj hai...
+ya bas thodi udaas hai...
+
+Par ek baat sach hai Gunnu 💖
+
+Aap meri life  me wo ho
+jinse baat karke dil halka lagta hai ✨
+
+Aur jab aap upset hoti ho na...to sachiii mai achha nahi lagta 🥺
+
+Isliye ye chhota sa card banaya...
+just to remind you that
+aapki smile bahut precious hai 💕
+`;
+
+    let i = 0;
+
+    function typeWriter(){
+      if(i < text.length){
+        document.getElementById('typing').innerHTML += text.charAt(i);
+        i++;
+        setTimeout(typeWriter,45);
+      }
+    }
+
+    typeWriter();
+
+    // Floating hearts
+    function hearts(){
+      const heart=document.createElement('div');
+      heart.classList.add('floating-heart');
+      heart.innerHTML='❤';
+      heart.style.left=Math.random()*100+'vw';
+      heart.style.fontSize=Math.random()*20+15+'px';
+      heart.style.animationDuration=Math.random()*3+4+'s';
+      document.body.appendChild(heart);
+
+      setTimeout(()=>{
+        heart.remove();
+      },7000)
+    }
+
+    setInterval(hearts,300);
+
+    function scrollToMemories(){
+      document.getElementById('memories').scrollIntoView({
+        behavior:'smooth'
+      });
+    }
+
+  </script>
+
+</body>
+</html>
