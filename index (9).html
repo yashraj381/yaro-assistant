@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Pagliiii ❤️</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Poppins, sans-serif;
+        }
+
+        body {
+            overflow: hidden;
+            height: 100vh;
+            background: linear-gradient(135deg, #ff4b91, #ff89b5, #ffb6c1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Hearts */
+        .heart {
+            position: absolute;
+            color: #fff;
+            font-size: 25px;
+            animation: float 10s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(.5);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-120vh) scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        /* Flowers */
+        .flower {
+            position: absolute;
+            font-size: 20px;
+            animation: flower 12s linear infinite;
+        }
+
+        @keyframes flower {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
+
+        /* Sparkles */
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: .2;
+                transform: scale(.2);
+            }
+        }
+
+        /* Letter */
+        #letter {
+            width: 260px;
+            height: 180px;
+            background: #fff;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 90px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(255, 255, 255, .8);
+            transition: 1s;
+            z-index: 100;
+        }
+
+        #letter:hover {
+            transform: scale(1.08);
+        }
+
+        /* Open Letter */
+        #paper {
+            position: absolute;
+            width: 90%;
+            max-width: 700px;
+            height: 80%;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            display: none;
+            overflow: auto;
+            animation: openLetter 1s;
+            box-shadow: 0 0 40px rgba(0, 0, 0, .4);
+            z-index: 500;
+        }
+
+        @keyframes openLetter {
+            from {
+                transform: scale(.2) rotateX(90deg);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        h1 {
+            font-family: "Great Vibes", cursive;
+            font-size: 50px;
+            color: #ff2b78;
+            text-align: center;
+        }
+
+        p {
+            margin-top: 25px;
+            font-size: 19px;
+            line-height: 1.8;
+            color: #444;
+        }
+
+        button {
+            margin-top: 35px;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            background: #ff2b78;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            transition: .4s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            background: #ff005d;
+        }
+
+        /* Lock Screen */
+        #lockScreen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 105, 180, .85);
+            backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .lockBox {
+            width: 330px;
+            background: rgba(255, 255, 255, .18);
+            backdrop-filter: blur(20px);
+            padding: 35px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255, 255, 255, .5);
+            animation: pop .8s;
+        }
+
+        .lockIcon {
+            font-size: 70px;
+            animation: shake 2s infinite;
+        }
+
+        .lockBox h2 {
+            color: white;
+            margin-top: 10px;
+        }
+
+        .lockBox p {
+            color: white;
+            margin: 15px;
+        }
+
+        .lockBox input {
+            width: 180px;
+            padding: 15px;
+            border: none;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 22px;
+            letter-spacing: 8px;
+            outline: none;
+        }
+
+        #msg {
+            font-size: 17px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        @keyframes pop {
+            from {
+                transform: scale(.3);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(-8deg); }
+            50% { transform: rotate(8deg); }
+            100% { transform: rotate(-8deg); }
+        }
+
+        /* Welcome Page */
+        #welcomePage {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ff4b91, #ff82b2, #ffc7dd);
+            overflow: hidden;
+            z-index: 2000;
+        }
+
+        .glass {
+            width: 90%;
+            max-width: 700px;
+            padding: 35px;
+            text-align: center;
+            background: rgba(255, 255, 255, .15);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            box-shadow: 0 0 35px rgba(255, 255, 255, .5);
+        }
+
+        .glass h1 {
+            font-size: 45px;
+            color: white;
+            font-family: 'Great Vibes', cursive;
+        }
+
+        .glass p {
+            margin-top: 20px;
+            font-size: 20px;
+            line-height: 1.8;
+            color: white;
+        }
+
+        .magicHeart {
+            font-size: 70px;
+            margin: 30px 0;
+            animation: beat 1s infinite;
+        }
+
+        @keyframes beat {
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        .glass button {
+            padding: 16px 40px;
+            font-size: 18px;
+            border: none;
+            border-radius: 50px;
+            background: white;
+            color: #ff2b78;
+            cursor: pointer;
+            transition: .4s;
+        }
+
+        .glass button:hover {
+            transform: scale(1.08);
+        }
+
+        /* Puzzle Page */
+        #puzzlePage {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff5da8, #ffb6d9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        .puzzle-container {
+            text-align: center;
+        }
+
+        .title {
+            color: white;
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        #preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 20px;
+            border: 4px solid white;
+            margin-bottom: 30px;
+            object-fit: cover;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 4px;
+            margin-bottom: 30px;
+        }
+
+        .tile {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            cursor: pointer;
+            background-size: 300px 300px;
+            border: 2px solid white;
+            transition: 0.3s;
+        }
+
+        .tile:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        .tile.selected {
+            border: 3px solid yellow;
+        }
+
+        /* Final Congratulation Page */
+        #congratsPage {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff4b91, #ff89b5, #ffb6c1);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 4000;
+            overflow: hidden;
+        }
+
+        .congrats-box {
+            text-align: center;
+            background: rgba(255, 255, 255, .2);
+            padding: 50px;
+            border-radius: 30px;
+            backdrop-filter: blur(20px);
+        }
+
+        .congrats-box h1 {
+            font-size: 60px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .congrats-box p {
+            font-size: 24px;
+            color: white;
+            margin: 20px 0;
+        }
+
+        .fireworks {
+            font-size: 50px;
+            animation: pop-burst 1s infinite;
+        }
+
+        @keyframes pop-burst {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Floating Hearts -->
+    <div id="letter">
+        💌
+    </div>
+
+    <!-- Letter -->
+    <div id="paper">
+        <h1>Dear Pagliiii ❤️</h1>
+        <p>
+            Aap shayad soch rahi hongi... ye achanak kya hai? 😊<br><br>
+            Sach kahun... na koi special day hai... na koi reason...<br><br>
+            Bas dil ne kaha ki... meri Chhipu 😊<br>
+            Ek baar achhe se muskura de.<br><br>
+            Isliye ye chhota sa surprise sirf aap ke liye banaya hai.<br><br>
+            Aur promise... abhi to surprise shuru hua hai...<br>
+            Aage aur bhi bahut kuch hai... ❤️
+        </p>
+        <button onclick="openLetter()">Continue 💖</button>
+    </div>
+
+    <!-- Lock Screen -->
+    <div id="lockScreen" style="display: none;">
+        <div class="lockBox">
+            <div class="lockIcon">🔒</div>
+            <h2>Ek Chhota Secret ❤️</h2>
+            <p>Is surprise ko kholne ke liye password dijiye...</p>
+            <input type="password" id="pass" maxlength="4" placeholder="••••" onkeypress="handleKeyPress(event)">
+            <br><br>
+            <button onclick="unlock()">Unlock 💖</button>
+            <p id="msg"></p>
+        </div>
+    </div>
+
+    <!-- Welcome Page -->
+    <div id="welcomePage" style="display: none;">
+        <div class="glass">
+            <h1 id="typing"></h1>
+            <p id="typing2"></p>
+            <div class="magicHeart">❤️</div>
+            <button onclick="startJourney()">Start The Journey 💖</button>
+        </div>
+    </div>
+
+    <!-- Puzzle Page -->
+    <div id="puzzlePage" style="display: none;">
+        <div class="puzzle-container">
+            <h1 class="title">🧩 Ek Chhota Challenge</h1>
+            <p class="subtitle">
+                Pagliiii ❤️<br>
+                Sab pieces ko sahi jagah lagaiye.
+            </p>
+            <img id="preview" src="memory1.jpg" alt="Puzzle Preview">
+            <div id="board"></div>
+            <button onclick="shufflePuzzle()">Shuffle ❤️</button>
+        </div>
+    </div>
+
+    <!-- Congratulation Page -->
+    <div id="congratsPage" style="display: none;">
+        <div class="congrats-box">
+            <div class="fireworks">🎉💝🎊</div>
+            <h1>Congratulations! 🌟</h1>
+            <p>Pagliiii ❤️</p>
+            <p>You did it! Aap meri favorite person ho! 💖</p>
+            <p>Aur suno... meri dua hai ki aap hamesha khush raho! 😊</p>
+            <div style="margin-top: 30px; font-size: 40px;">
+                ❤️ 💕 💗 💓 💞 💘
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== PUZZLE IMAGE URL ==========
+        // Local file - memory1.jpg se
+        const puzzleImageUrl = "memory1.jpg";
+        // Agar memory2.jpg use karna hai to: const puzzleImageUrl = "memory2.jpg";
+
+        // ========== PAGE TRANSITIONS ==========
+        document.getElementById("letter").onclick = function() {
+            this.style.display = "none";
+            document.getElementById("paper").style.display = "block";
+        }
+
+        function openLetter() {
+            document.getElementById("paper").style.display = "none";
+            document.getElementById("lockScreen").style.display = "flex";
+        }
+
+        function unlock() {
+            let code = document.getElementById("pass").value;
+            if (code == "1709") {
+                document.getElementById("msg").style.color = "lime";
+                document.getElementById("msg").innerHTML = "Unlocked ❤️";
+                setTimeout(function() {
+                    document.getElementById("lockScreen").style.display = "none";
+                    document.getElementById("welcomePage").style.display = "flex";
+                    startTyping();
+                }, 1200);
+            } else {
+                document.getElementById("msg").style.color = "yellow";
+                document.getElementById("msg").innerHTML = "Wrong Password 🥺";
+                document.getElementById("pass").value = "";
+                if (navigator.vibrate) {
+                    navigator.vibrate(300);
+                }
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                unlock();
+            }
+        }
+
+        // ========== TYPING ANIMATION ==========
+        const line1 = "Welcome, Pagliiii ❤️";
+        const line2 = "Dear Chhipu... 😊\nYe surprise kisi special day ke liye nahi hai.\nBas isliye kyunki aapki muskurahat dekhna mujhe bahut achha lagta hai.\nAur ye to bas shuruaat hai... 💖";
+
+        function startTyping() {
+            let i = 0;
+            let h = document.getElementById("typing");
+            let p = document.getElementById("typing2");
+
+            function type1() {
+                if (i < line1.length) {
+                    h.innerHTML += line1.charAt(i);
+                    i++;
+                    setTimeout(type1, 80);
+                } else {
+                    let j = 0;
+                    function type2() {
+                        if (j < line2.length) {
+                            if (line2.charAt(j) == "\n")
+                                p.innerHTML += "<br>";
+                            else
+                                p.innerHTML += line2.charAt(j);
+                            j++;
+                            setTimeout(type2, 35);
+                        }
+                    }
+                    type2();
+                }
+            }
+            type1();
+        }
+
+        function startJourney() {
+            document.getElementById("welcomePage").style.display = "none";
+            document.getElementById("puzzlePage").style.display = "flex";
+            initializePuzzle();
+        }
+
+        // ========== PUZZLE LOGIC ==========
+        let board = document.getElementById("board");
+        let pieces = [];
+        let selectedPiece = null;
+
+        function initializePuzzle() {
+            pieces = [];
+            board.innerHTML = "";
+
+            // Set preview image
+            document.getElementById("preview").src = puzzleImageUrl;
+
+            // Create puzzle pieces
+            for (let y = 0; y < 3; y++) {
+                for (let x = 0; x < 3; x++) {
+                    let div = document.createElement("div");
+                    div.className = "tile";
+                    div.style.backgroundImage = `url('${puzzleImageUrl}')`;
+                    div.style.backgroundPosition = (-x * 100) + "px " + (-y * 100) + "px";
+                    div.dataset.correctIndex = y * 3 + x;
+                    div.dataset.index = y * 3 + x;
+                    
+                    div.onclick = function() {
+                        selectPiece(this);
+                    };
+                    
+                    board.appendChild(div);
+                    pieces.push(div);
+                }
+            }
+
+            // Shuffle puzzle on start
+            shufflePuzzle();
+        }
+
+        function shufflePuzzle() {
+            let shuffled = [...pieces].sort(() => Math.random() - 0.5);
+            board.innerHTML = "";
+            shuffled.forEach((p, idx) => {
+                p.dataset.index = idx;
+                board.appendChild(p);
+            });
+
+            // Re-attach click handlers
+            let allTiles = document.querySelectorAll(".tile");
+            allTiles.forEach(t => {
+                t.onclick = function() {
+                    selectPiece(this);
+                };
+            });
+        }
+
+        function selectPiece(tile) {
+            if (selectedPiece === null) {
+                selectedPiece = tile;
+                tile.classList.add("selected");
+            } else {
+                // Swap pieces
+                let temp = selectedPiece.dataset.index;
+                selectedPiece.dataset.index = tile.dataset.index;
+                tile.dataset.index = temp;
+
+                // Swap in DOM
+                let tempNode = selectedPiece.cloneNode(true);
+                selectedPiece.replaceWith(tile.cloneNode(true));
+                tile.replaceWith(tempNode);
+
+                // Re-attach click handlers
+                let allTiles = document.querySelectorAll(".tile");
+                allTiles.forEach(t => {
+                    t.onclick = function() {
+                        selectPiece(this);
+                    };
+                });
+
+                selectedPiece.classList.remove("selected");
+                selectedPiece = null;
+
+                // Check if puzzle is completed
+                checkPuzzleComplete();
+            }
+        }
+
+        function checkPuzzleComplete() {
+            let allTiles = document.querySelectorAll(".tile");
+            let isComplete = true;
+
+            allTiles.forEach((tile, idx) => {
+                if (parseInt(tile.dataset.correctIndex) !== idx) {
+                    isComplete = false;
+                }
+            });
+
+            if (isComplete) {
+                setTimeout(() => {
+                    document.getElementById("puzzlePage").style.display = "none";
+                    document.getElementById("congratsPage").style.display = "flex";
+                }, 500);
+            }
+        }
+
+        // ========== FLOATING ANIMATIONS ==========
+        // Hearts
+        for (let i = 0; i < 40; i++) {
+            let h = document.createElement("div");
+            h.className = "heart";
+            h.innerHTML = "❤️";
+            h.style.left = Math.random() * 100 + "%";
+            h.style.animationDuration = (6 + Math.random() * 6) + "s";
+            h.style.fontSize = (15 + Math.random() * 25) + "px";
+            h.style.pointerEvents = "none";
+            document.body.appendChild(h);
+        }
+
+        // Flowers
+        for (let i = 0; i < 30; i++) {
+            let f = document.createElement("div");
+            f.className = "flower";
+            f.innerHTML = "🌸";
+            f.style.left = Math.random() * 100 + "%";
+            f.style.animationDuration = (8 + Math.random() * 8) + "s";
+            f.style.pointerEvents = "none";
+            document.body.appendChild(f);
+        }
+
+        // Sparkles
+        for (let i = 0; i < 120; i++) {
+            let s = document.createElement("div");
+            s.className = "sparkle";
+            s.style.left = Math.random() * 100 + "%";
+            s.style.top = Math.random() * 100 + "%";
+            s.style.pointerEvents = "none";
+            document.body.appendChild(s);
+        }
+    </script>
+</body>
+</html>
