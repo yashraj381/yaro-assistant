@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YARO VISION 1.0</title>
+
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    background: #080d18;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+h1 {
+    color: #00e5ff;
+    letter-spacing: 3px;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: #8996aa;
+    margin-bottom: 25px;
+}
+
+.container {
+    max-width: 450px;
+    margin: auto;
+}
+
+.camera-box {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border: 2px solid #00e5ff;
+    border-radius: 18px;
+    background: #111827;
+}
+
+video, canvas {
+    display: block;
+    width: 100%;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.status-box {
+    background: #111c2d;
+    border: 1px solid #1e3a52;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 20px 0;
+    color: #00e5ff;
+    min-height: 55px;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    margin: 7px 0;
+    border: none;
+    border-radius: 10px;
+    background: #00c8e8;
+    color: #001018;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.secondary {
+    background: #17283c;
+    color: white;
+    border: 1px solid #00c8e8;
+}
+
+.info {
+    color: #8291a8;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-top: 20px;
+}
+
+#memory {
+    color: #00e5ff;
+    margin-top: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🤖 YARO VISION</h1>
+<p class="subtitle">AI Face Recognition System 1.0</p>
+
+<div class="camera-box">
+    <video id="video" autoplay muted playsinline></video>
+    <canvas id="overlay"></canvas>
+</div>
+
+<div class="status-box" id="status">
+    Initializing Yaro AI...
+</div>
+
+<button id="cameraBtn" disabled>START CAMERA</button>
+
+<button id="registerBtn" disabled>
+    REGISTER MY FACE
+</button>
+
+<button id="recognizeBtn" disabled>
+    AM I YASHRAJ?
+</button>
+
+<button id="stopBtn" class="secondary" disabled>
+    STOP CAMERA
+</button>
+
+<div id="memory">
+    Memory: No face registered
+</div>
+
+<p class="info">
+    YARO VISION 1.0<br>
+    Face detection and recognition demo.<br>
+    Face registration stays in browser memory
+    and resets when the page is refreshed.
+</p>
+
+</div>
+
+<script>
+
+const video = document.getElementById("video");
+const canvas = document.getElementById("overlay");
+
+const statusBox = document.getElementById("status");
+const cameraBtn = document.getElementById("cameraBtn");
+const registerBtn = document.getElementById("registerBtn");
+const recognizeBtn = document.getElementById("recognizeBtn");
+const stopBtn = document.getElementById("stopBtn");
+const memory = document.getElementById("memory");
+
+const MODEL_URL =
+"https://cdn.jsdelivr.net/gh/cgarciagl/face-api.js@0.22.2/weights";
+
+let modelsReady = false;
+let cameraStream = null;
+let registeredFace = null;
+let busy = false;
+let detectionTimer = null;
+
+// SPEAK FUNCTION
+
+function speak(message) {
+    if (!("speechSynthesis" in window)) return;
+
+    speechSynthesis.cancel();
+
+    const speech = new SpeechSynthesisUtterance(message);
+    speech.lang = "en-IN";
+    speech.rate = 0.9;
+
+    speechSynthesis.speak(speech);
+}
+
+// LOAD AI MODELS
+
+async function loadAI() {
+
+    try {
+
+        statusBox.innerText =
+        "Loading face detection model...";
+
+        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+
+        statusBox.innerText =
+        "Loading face landmark model...";
+
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+
+        statusBox.innerText =
+        "Loading face recognition model...";
+
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+
+        modelsReady = true;
+
+        statusBox.innerText =
+        "✓ YARO AI READY! Start camera.";
+
+        cameraBtn.disabled = false;
+
+    }
+
+    catch(error) {
+
+        console.error(error);
+
+        statusBox.innerText =
+        "AI Loading Failed: " + error.message;
+
+    }
+
+}
+
+// START CAMERA
+
+async function startCamera() {
+
+    try {
+
+        statusBox.innerText =
+        "Requesting camera permission...";
+
+        cameraStream =
+        await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: "user",
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            },
+            audio: false
+        });
+
+        video.srcObject = cameraStream;
+
+        await video.play();
+
+        cameraBtn.disabled = true;
+        registerBtn.disabled = false;
+        recognizeBtn.disabled = false;
+        stopBtn.disabled = false;
+
+        statusBox.innerText =
+        "Camera active! Show your face.";
+
+        startDetection();
+
+    }
+
+    catch(error) {
+
+        statusBox.innerText =
+        "Camera Error: " + error.message;
+
+    }
+
+}
+
+// FACE DETECTION
+
+function startDetection() {
+
+    if (detectionTimer) {
+        clearInterval(detectionTimer);
+    }
+
+    detectionTimer = setInterval(async () => {
+
+        if (busy || video.readyState < 2) return;
+
+        busy = true;
+
+        try {
+
+            const result =
+            await faceapi.detectAllFaces(
+                video,
+                new faceapi.TinyFaceDetectorOptions({
+                    inputSize: 320,
+                    scoreThreshold: 0.5
+                })
+            );
+
+            const size = {
+                width: video.videoWidth,
+                height: video.videoHeight
+            };
+
+            if (!size.width || !size.height) return;
+
+            faceapi.matchDimensions(canvas, size);
+
+            const resized =
+            faceapi.resizeResults(result, size);
+
+            const ctx = canvas.getContext("2d");
+
+            ctx.clearRect(
+                0, 0, canvas.width, canvas.height
+            );
+
+            faceapi.draw.drawDetections(
+                canvas,
+                resized
+            );
+
+        }
+
+        catch(error) {
+            console.error(error);
+        }
+
+        finally {
+            busy = false;
+        }
+
+    }, 400);
+
+}
+
+// GET FACE DESCRIPTOR
+
+async function getFaceDescriptor() {
+
+    const result =
+    await faceapi.detectSingleFace(
+        video,
+        new faceapi.TinyFaceDetectorOptions({
+            inputSize: 320,
+            scoreThreshold: 0.5
+        })
+    )
+    .withFaceLandmarks()
+    .withFaceDescriptor();
+
+    return result || null;
+
+}
+
+// REGISTER FACE
+
+registerBtn.addEventListener("click", async () => {
+
+    if (busy) return;
+
+    busy = true;
+    registerBtn.disabled = true;
+
+    try {
+
+        statusBox.innerText =
+        "Registering your face...";
+
+        const result = await getFaceDescriptor();
+
+        if (!result) {
+
+            statusBox.innerText =
+            "No face found. Look at the camera.";
+
+            return;
+        }
+
+        registeredFace =
+        new Float32Array(result.descriptor);
+
+        memory.innerText =
+        "Memory: Yashraj face registered ✓";
+
+        statusBox.innerText =
+        "Face registered successfully!";
+
+        speak("Hello Yashraj. Your face is registered.");
+
+    }
+
+    catch(error) {
+
+        statusBox.innerText =
+        "Registration error: " + error.message;
+
+    }
+
+    finally {
+
+        busy = false;
+        registerBtn.disabled = false;
+
+    }
+
+});
+
+// RECOGNIZE FACE
+
+recognizeBtn.addEventListener("click", async () => {
+
+    if (busy) return;
+
+    if (!registeredFace) {
+
+        statusBox.innerText =
+        "Please register your face first!";
+
+        return;
+    }
+
+    busy = true;
+    recognizeBtn.disabled = true;
+
+    try {
+
+        statusBox.innerText =
+        "Recognizing face...";
+
+        const result = await getFaceDescriptor();
+
+        if (!result) {
+
+            statusBox.innerText =
+            "Face not detected!";
+
+            return;
+        }
+
+        const distance =
+        faceapi.euclideanDistance(
+            registeredFace,
+            result.descriptor
+        );
+
+        if (distance < 0.6) {
+
+            statusBox.innerText =
+            "✓ Hello Yashraj! Welcome back!";
+
+            speak("Hello Yashraj! Welcome back.");
+
+        }
+
+        else {
+
+            statusBox.innerText =
+            "Unknown face! No match found.";
+
+            speak("Unknown person.");
+
+        }
+
+    }
+
+    catch(error) {
+
+        statusBox.innerText =
+        "Recognition error: " + error.message;
+
+    }
+
+    finally {
+
+        busy = false;
+        recognizeBtn.disabled = false;
+
+    }
+
+});
+
+// STOP CAMERA
+
+stopBtn.addEventListener("click", () => {
+
+    if (cameraStream) {
+
+        cameraStream.getTracks().forEach(
+            track => track.stop()
+        );
+
+        cameraStream = null;
+
+    }
+
+    video.srcObject = null;
+
+    if (detectionTimer) {
+        clearInterval(detectionTimer);
+        detectionTimer = null;
+    }
+
+    const ctx = canvas.getContext("2d");
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    cameraBtn.disabled = !modelsReady;
+    registerBtn.disabled = true;
+    recognizeBtn.disabled = true;
+    stopBtn.disabled = true;
+
+    statusBox.innerText = "Camera stopped.";
+
+});
+
+// INITIALIZE
+
+if (window.faceapi) {
+
+    loadAI();
+
+} else {
+
+    statusBox.innerText =
+    "Face API library failed to load. Check internet.";
+
+}
+
+</script>
+
+</body>
+  </html>
