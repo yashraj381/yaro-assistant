@@ -19,12 +19,12 @@ h1{font-size:25px;margin:28px 0 4px}.subtitle{color:var(--muted);font-size:14px;
 <header><div class="logo">YARO</div><div class="badge">HANDS-FREE MUSIC · WIKIPEDIA</div></header>
 <h1>Namaste Yashraj!</h1><div class="subtitle">Main Yaro hoon. Gaana chalao ya kuch poochho.</div>
 <div class="orb-wrap" id="orbWrap" aria-hidden="true"><div class="orb"></div></div>
-<div class="status" id="status" role="status" aria-live="polite">Start dabao, phir bolo: “Oye Yaro, play Kesariya”</div>
-<div class="transcript" id="transcript" aria-live="polite">Main tumhari awaaz ka intezaar kar raha hoon.</div>
+<div class="status" id="status" role="status" aria-live="polite">Start dabao, phir bolo: “Yaro, play Kesariya”</div>
+<div class="transcript" id="transcript" aria-live="polite">Jo bhi main sununga, yahan dikhai dega.</div>
 <div class="settings"><div class="field"><label for="musicService">Music app</label><select id="musicService"><option value="youtube">YouTube Music</option><option value="spotify">Spotify</option></select></div><div class="field"><label for="speechLanguage">Voice recognition language</label><select id="speechLanguage"><option value="hi-IN">Hindi / Hinglish</option><option value="en-IN">English (India)</option><option value="en-US">English (US)</option></select></div></div>
 <div class="controls"><button class="primary" id="startBtn" type="button">🎙️ Start Hands-Free</button><button id="stopBtn" type="button">⏸ Stop Listening</button><button id="testBtn" type="button">🔊 Voice Test</button></div>
 <form class="inputrow" id="textForm"><input id="textInput" placeholder="Yaro ko message likho..." autocomplete="off" aria-label="Message for Yaro"><button class="primary" type="submit">Send</button></form>
-<div class="hint">Try: “Oye Yaro, play Kesariya” · “Oye Yaro, Arijit Singh chalao”<br>Or say “Oye Yaro”, wait for the reply, then say the song/artist within 9 seconds.<br>Wikipedia: “Oye Yaro, photosynthesis kya hai” · “Oye Yaro, Taj Mahal ke baare mein batao”<br>Voice needs HTTPS, microphone permission, and a supported browser. “So jao Yaro” stops listening.</div>
+<div class="hint">Wake word: <b>“Yaro”</b> · Say: “Yaro, play Kesariya” or “Yaro, Arijit Singh chalao���<br>Or say “Yaro”, wait for Yaro's reply, then say the song/artist within 9 seconds.<br>Whatever the microphone recognizes is shown above. A “Heard ✓” message confirms it received your words.<br>Wikipedia: “Yaro, photosynthesis kya hai” · Voice needs HTTPS, microphone permission, and a supported browser. “So jao Yaro” stops listening.</div>
 <div class="action" id="action" hidden></div><div class="log" id="log" aria-live="polite"></div><footer>YARO · Created for Yashraj Pawar</footer>
 </main>
 <script>
@@ -43,131 +43,99 @@ h1{font-size:25px;margin:28px 0 4px}.subtitle{color:var(--muted);font-size:14px;
   function showLink(url, label) { const box = $("action"); box.replaceChildren(); const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = label || "Tap to open"; box.append(a); box.hidden = false; }
   function clearLink() { $("action").hidden = true; $("action").replaceChildren(); }
   function musicHome(service = $("musicService").value) { return service === "spotify" ? "https://open.spotify.com/" : "https://music.youtube.com/"; }
-  function prepareMusicTab() {
-    if (musicTab && !musicTab.closed) return true;
-    try { musicTab = window.open(musicHome(), "yaroMusic"); } catch (_) { musicTab = null; }
-    if (!musicTab) showLink(musicHome(), "Music tab blocked — tap here to open");
-    return !!musicTab;
-  }
+  function prepareMusicTab() { if (musicTab && !musicTab.closed) return true; try { musicTab = window.open(musicHome(), "yaroMusic"); } catch (_) { musicTab = null; } if (!musicTab) showLink(musicHome(), "Music tab blocked — tap here to open"); return !!musicTab; }
   function playSearch(query, service) {
     const url = service === "spotify" ? "https://open.spotify.com/search/" + encodeURIComponent(query.trim()) : "https://music.youtube.com/search?q=" + encodeURIComponent(query.trim());
     if (musicTab && !musicTab.closed) { try { musicTab.location.href = url; setStatus("Music app mein “" + query + "” dhoondh raha hoon"); return; } catch (_) { musicTab = null; } }
     showLink(url, "Tap to choose and play: " + query); setStatus("Music result ready — link tap karke gaana chalao");
   }
-  function finishSpeaking(token) {
-    if (token !== speechToken) return;
-    speaking = false;
-    if (stopAfterSpeech) { stopAfterSpeech = false; clearTimeout(stopFallbackTimer); stopListening(); return; }
-    if (listening) { setStatus('Listening... “Oye Yaro” bolo', "listening"); scheduleRestart(450); } else setStatus("Ready");
-  }
+  function finishSpeaking(token) { if (token !== speechToken) return; speaking = false; if (stopAfterSpeech) { stopAfterSpeech = false; clearTimeout(stopFallbackTimer); stopListening(); return; } if (listening) { setStatus('Listening... Say “Yaro”', "listening"); scheduleRestart(450); } else setStatus("Ready"); }
   function speak(text) {
-    $("transcript").textContent = text; addLog("Yaro", text);
+    $("transcript").textContent = "Yaro replied: " + text; addLog("Yaro", text);
     if (!hasSpeech) { setStatus("Text reply ready — speech output unavailable"); return; }
-    const token = ++speechToken; speaking = true; clearTimeout(restartTimer);
-    try { if (recognition) recognition.stop(); } catch (_) {}
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text); utterance.lang = "hi-IN"; utterance.rate = 0.94; utterance.pitch = 1;
-    utterance.onstart = () => { if (token === speechToken) setStatus("Yaro bol raha hai...", "speaking"); };
-    utterance.onend = () => finishSpeaking(token); utterance.onerror = () => finishSpeaking(token);
-    window.speechSynthesis.speak(utterance);
+    const token = ++speechToken; speaking = true; clearTimeout(restartTimer); try { if (recognition) recognition.stop(); } catch (_) {}
+    window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(text); utterance.lang = "hi-IN"; utterance.rate = 0.94; utterance.pitch = 1;
+    utterance.onstart = () => { if (token === speechToken) setStatus("Yaro bol raha hai...", "speaking"); }; utterance.onend = () => finishSpeaking(token); utterance.onerror = () => finishSpeaking(token); window.speechSynthesis.speak(utterance);
   }
-  function scheduleRestart(delay = 650) {
-    clearTimeout(restartTimer); if (!listening || speaking || starting) return;
-    restartTimer = setTimeout(() => { if (!listening || speaking || !recognition) return; starting = true; try { recognition.start(); } catch (_) { starting = false; scheduleRestart(1200); } }, delay);
-  }
+  function scheduleRestart(delay = 650) { clearTimeout(restartTimer); if (!listening || speaking || starting) return; restartTimer = setTimeout(() => { if (!listening || speaking || !recognition) return; starting = true; try { recognition.start(); } catch (_) { starting = false; scheduleRestart(1200); } }, delay); }
   function startListening() {
     if (!Recognition) { setStatus("Voice recognition unavailable"); addLog("System", "Use Chrome over HTTPS and allow microphone access. Text commands still work."); return; }
-    if (listening) return;
-    clearTimeout(restartTimer); prepareMusicTab();
+    if (listening) return; clearTimeout(restartTimer); prepareMusicTab();
     recognition = new Recognition(); recognition.lang = $("speechLanguage").value; recognition.continuous = true; recognition.interimResults = true; recognition.maxAlternatives = 1;
-    recognition.onstart = () => { starting = false; setStatus('Listening... Say “Oye Yaro”', "listening"); };
+    recognition.onstart = () => { starting = false; setStatus('Listening... Say “Yaro”', "listening"); };
     recognition.onresult = event => {
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i], phrase = result[0].transcript.trim();
         if (result.isFinal && phrase) {
           const now = Date.now(), key = phrase.toLocaleLowerCase();
           if (key !== lastFinalText || now - lastFinalAt > 1800) { lastFinalText = key; lastFinalAt = now; handleVoice(phrase); }
-        } else if (phrase) { $("transcript").textContent = "Heard: " + phrase; }
+        } else if (phrase) {
+          $("transcript").textContent = "Hearing you… “" + phrase + "”";
+          setStatus("I can hear you — keep speaking", "listening");
+        }
       }
     };
     recognition.onerror = event => {
       starting = false;
       if (event.error === "not-allowed" || event.error === "service-not-allowed") { listening = false; clearTimeout(restartTimer); setStatus("Microphone permission denied"); addLog("System", "Allow microphone access in browser site settings, then press Start again."); }
-      else if (event.error === "audio-capture") { setStatus("Microphone not found"); addLog("System", "Check that a microphone is connected and not being used exclusively by another app."); }
+      else if (event.error === "audio-capture") { setStatus("Microphone not found"); addLog("System", "Check that a microphone is connected and available."); }
       else if (event.error === "network") { setStatus("Speech service/network error"); addLog("System", "Browser speech recognition needs its speech service and an internet connection."); }
-      else if (event.error === "language-not-supported") { setStatus("Speech language unavailable"); addLog("System", "Try English (India) or another language in the selector."); }
+      else if (event.error === "language-not-supported") { setStatus("Speech language unavailable"); addLog("System", "Try another language in the selector."); }
       else if (event.error !== "aborted" && event.error !== "no-speech") addLog("System", "Speech recognition error: " + event.error);
     };
     recognition.onend = () => { starting = false; if (listening && !speaking) scheduleRestart(650); };
-    listening = true; starting = true;
-    try { recognition.start(); } catch (_) { starting = false; scheduleRestart(1200); }
+    listening = true; starting = true; try { recognition.start(); } catch (_) { starting = false; scheduleRestart(1200); }
   }
-  function stopListening() {
-    listening = false; starting = false; wakeExpiresAt = 0; stopAfterSpeech = false; clearTimeout(restartTimer); clearTimeout(stopFallbackTimer);
-    if (hasSpeech) window.speechSynthesis.cancel(); speaking = false; ++speechToken;
-    try { if (recognition) recognition.stop(); } catch (_) {} setStatus("Listening band hai");
-  }
+  function stopListening() { listening = false; starting = false; wakeExpiresAt = 0; stopAfterSpeech = false; clearTimeout(restartTimer); clearTimeout(stopFallbackTimer); if (hasSpeech) window.speechSynthesis.cancel(); speaking = false; ++speechToken; try { if (recognition) recognition.stop(); } catch (_) {} setStatus("Listening band hai"); }
   function normalize(value) {
-    return value.toLocaleLowerCase("hi-IN").replace(/[.,!?।]/g, " ")
-      .replace(/(?:ओये|ओए|ओय|ओयेयारो)\s*(?:यारो|यारु)?/g, " oye yaro ")
-      .replace(/\s+/g, " ").trim();
+    return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("hi-IN").replace(/[.,!?।]/g, " ")
+      .replace(/यारो|यारु|यारो़/g, " yaro ").replace(/\s+/g, " ").trim();
   }
   function extractWakeCommand(text) {
-    // Avoid \b after Devanagari: JavaScript word boundaries are ASCII-oriented. normalize() maps Hindi wake-word spellings first.
-    const match = text.match(/(?:^|\s)(?:oye|o\s+y|hey|hello)\s+ya+r+o+(?=$|\s)/i);
+    // Recognize only Yaro (also accepts common ASR spellings like Yaaro/Yaru and Hindi यारो).
+    const match = text.match(/(?:^|\s)(?:ya+r+o+|ya+r+u)(?=$|\s)/i);
     if (!match) return null;
     wakeExpiresAt = Date.now() + WAKE_WINDOW_MS;
     return text.slice(match.index + match[0].length).trim();
   }
   function handleVoice(raw) {
     const text = normalize(raw); if (!text) return;
-    $("transcript").textContent = raw; addLog("Tum", raw);
-    if (/(so jao yaro|band ho jao yaro|stop listening|listening band)/i.test(text)) { stopAfterSpeech = true; speak("Theek hai Yashraj, main abhi ke liye sunna band kar raha hoon."); stopFallbackTimer = setTimeout(() => { if (stopAfterSpeech) stopListening(); }, 5000); return; }
+    $("transcript").textContent = "Heard ✓ “" + raw + "”";
+    addLog("Tum — heard", raw);
     const command = extractWakeCommand(text);
-    if (command !== null) { if (!command) { speak("Haan Yashraj, bolo! Ab gaane ka naam bolo."); return; } processCommand(command); return; }
-    if (Date.now() <= wakeExpiresAt) { wakeExpiresAt = 0; processCommand(text); }
+    if (command !== null) {
+      if (!command) { setStatus("Heard you ✓ Yaro is ready for your command", "listening"); speak("Haan Yashraj, suna maine. Ab bolo kya karna hai."); return; }
+      setStatus("Heard you ✓ — processing your command"); processCommand(command); return;
+    }
+    if (Date.now() <= wakeExpiresAt) { wakeExpiresAt = 0; setStatus("Heard you ✓ — processing your command"); processCommand(text); return; }
+    if (/(so jao yaro|band ho jao yaro|stop listening|listening band)/i.test(text)) { stopAfterSpeech = true; speak("Theek hai Yashraj, main abhi ke liye sunna band kar raha hoon."); stopFallbackTimer = setTimeout(() => { if (stopAfterSpeech) stopListening(); }, 5000); return; }
+    setStatus("Heard you ✓ — say “Yaro” before a command", "listening");
   }
   function wikiUrl(topic, lang = "hi") { return "https://" + (lang === "en" ? "en" : "hi") + ".wikipedia.org/w/index.php?search=" + encodeURIComponent(topic); }
   async function wikipediaAnswer(topic) {
     speak(topic + " ke baare mein Wikipedia par dekh raha hoon.");
-    for (const language of ["hi", "en"]) {
-      try {
-        const title = encodeURIComponent(topic.trim().replace(/\s+/g, "_"));
-        const response = await fetch("https://" + language + ".wikipedia.org/api/rest_v1/page/summary/" + title, {headers:{Accept:"application/json"}});
-        if (!response.ok) continue;
-        const data = await response.json();
-        if (data.extract && data.type !== "disambiguation") { const answer = data.extract.length > 500 ? data.extract.slice(0,497) + "..." : data.extract; speak(answer); return; }
-      } catch (_) { /* Try English, then link to Wikipedia search. */ }
-    }
+    for (const language of ["hi", "en"]) { try { const title = encodeURIComponent(topic.trim().replace(/\s+/g, "_")); const response = await fetch("https://" + language + ".wikipedia.org/api/rest_v1/page/summary/" + title, {headers:{Accept:"application/json"}}); if (!response.ok) continue; const data = await response.json(); if (data.extract && data.type !== "disambiguation") { const answer = data.extract.length > 500 ? data.extract.slice(0,497) + "..." : data.extract; speak(answer); return; } } catch (_) { /* Try English, then link to Wikipedia search. */ } }
     showLink(wikiUrl(topic), "Wikipedia par “" + topic + "” dekho"); speak("Wikipedia par seedha summary nahi mila. Wikipedia search ka link diya hai.");
   }
-  function extractTopic(q) { return q.replace(/(?:oye|yaro|please|zara|wikipedia|wiki|kya\s+hai|kaun\s+hai|ke\s+baare\s+mein|ke\s+bare\s+mein|samjhao|batao|bataiye|mujhe|about)/gi, " ").replace(/\s+/g, " ").trim(); }
-  function searchMusic(query, service = $("musicService").value) {
-    playSearch(query, service);
-    speak((service === "spotify" ? "Spotify" : "YouTube Music") + " par " + query + " dhoondh raha hoon. Result mein gaana tap karke play karo.");
-  }
+  function extractTopic(q) { return q.replace(/(?:yaro|please|zara|wikipedia|wiki|kya\s+hai|kaun\s+hai|ke\s+baare\s+mein|ke\s+bare\s+mein|samjhao|batao|bataiye|mujhe|about|क्या\s+है|कौन\s+है|के\s+बारे\s+में)/gi, " ").replace(/\s+/g, " ").trim(); }
+  function searchMusic(query, service = $("musicService").value) { playSearch(query, service); speak((service === "spotify" ? "Spotify" : "YouTube Music") + " par " + query + " dhoondh raha hoon. Result mein gaana tap karke play karo."); }
   function processCommand(command) {
-    const q = normalize(command).replace(/^(please|zara|yaro)\s+/, "").trim();
-    if (!q) { speak("Haan Yashraj, bolo."); return; }
-    clearLink();
+    const q = normalize(command).replace(/^(please|zara|yaro)\s+/, "").trim(); if (!q) { speak("Haan Yashraj, bolo."); return; } clearLink();
     if (/(mera naam|who am i|main kaun)/.test(q)) { speak("Tum Yashraj Pawar ho, aur tumne mujhe Yaro banaya hai."); return; }
     if (/(tumhe kisne banaya|kisne banaya|creator|who made you)/.test(q)) { speak("Mujhe Yashraj Pawar ne banaya hai."); return; }
     if (/(time kya|kitne baje|samay kya|what time)/.test(q)) { speak("Abhi " + new Date().toLocaleTimeString("hi-IN", {hour:"2-digit",minute:"2-digit"}) + " baj rahe hain."); return; }
     if (/(aaj ki date|date kya|aaj kaun si date|today.?s date)/.test(q)) { speak("Aaj " + new Date().toLocaleDateString("hi-IN", {day:"numeric",month:"long",year:"numeric"}) + " hai."); return; }
     if (/(youtube music kholo|open youtube music|youtube kholo|open youtube)/.test(q)) { const url = "https://music.youtube.com/"; if (musicTab && !musicTab.closed) { try { musicTab.location.href = url; } catch (_) { showLink(url, "YouTube Music kholo"); } } else showLink(url, "YouTube Music kholo"); speak("YouTube Music khol raha hoon."); return; }
     if (/(spotify kholo|open spotify)/.test(q)) { const url = "https://open.spotify.com/"; if (musicTab && !musicTab.closed) { try { musicTab.location.href = url; } catch (_) { showLink(url, "Spotify kholo"); } } else showLink(url, "Spotify kholo"); speak("Spotify khol raha hoon."); return; }
-
     let m = q.match(/(?:youtube\s*music|youtube|यूट्यूब)(?:\s+(?:par|pe))?\s+(.+?)\s+(?:gaana\s+)?(?:play(?:\s+karo)?|chalao|bajao|चलाओ|बजाओ|search(?:\s+karo)?|dhundo|dhoondo)$/i);
     if (m && m[1].trim()) { searchMusic(m[1].trim(), "youtube"); return; }
     m = q.match(/(?:spotify|स्पॉटिफाई)(?:\s+(?:par|pe))?\s+(.+?)\s+(?:gaana\s+)?(?:play(?:\s+karo)?|chalao|bajao|चलाओ|बजाओ|search(?:\s+karo)?|dhundo|dhoondo)$/i);
     if (m && m[1].trim()) { searchMusic(m[1].trim(), "spotify"); return; }
     m = q.match(/^(?:please\s+)?(?:play|chalao|bajao|चलाओ|बजाओ)\s+(.+?)(?:\s+(?:on|par|pe)\s+(youtube\s*music|youtube|spotify))?$/i);
     if (m && m[1].trim() && !/^(?:a song|song|gaana|music)$/.test(m[1].trim())) { const service = /spotify/i.test(m[2] || "") ? "spotify" : /youtube/i.test(m[2] || "") ? "youtube" : $("musicService").value; searchMusic(m[1].trim(), service); return; }
-    // Common Hindi order: “Arijit Singh chalao” / “Kesariya bajao”.
     m = q.match(/^(.+?)\s+(?:gaana\s+)?(?:chalao|bajao|play(?:\s+karo)?|चलाओ|बजाओ)$/i);
     if (m && m[1].trim() && !/(kya hai|kaun hai|batao|samjhao)/.test(m[1])) { searchMusic(m[1].trim()); return; }
     if (/^(?:gaana|song|music)\s+(?:chalao|bajao|play|चलाओ|बजाओ)$/i.test(q) || /^(?:play|chalao|bajao|चलाओ|बजाओ)\s+(?:a song|song|gaana|music)$/i.test(q)) { speak("Kaunsa gaana ya artist chalaoon?"); return; }
-
     if (/(wikipedia|wiki|kya hai|kaun hai|ke baare mein|ke bare mein|samjhao|batao|bataiye|क्या है|कौन है|के बारे में)/i.test(q)) { const topic = extractTopic(q); if (topic) { wikipediaAnswer(topic); return; } }
     if (/^(wikipedia|wiki)\b/i.test(q)) { const topic = q.replace(/^(wikipedia|wiki)\s*(par)?\s*/i, ""); if (topic) { wikipediaAnswer(topic); return; } }
     showLink(wikiUrl(q), "Wikipedia par “" + q + "” search karo"); speak("Jawab ke liye Wikipedia search ka link diya hai.");
@@ -175,15 +143,14 @@ h1{font-size:25px;margin:28px 0 4px}.subtitle{color:var(--muted);font-size:14px;
   function sendText(event) {
     event.preventDefault(); const value = $("textInput").value.trim(); if (!value) return; $("textInput").value = "";
     const normalized = normalize(value);
-    if (/(?:^|\s)(?:oye|o\s+y|hey|hello|ओये|ओए|ओय)\s*(?:yaro|yaaro|यारो|यारु)/i.test(normalized)) handleVoice(value);
-    else { $("transcript").textContent = value; addLog("Tum", value); processCommand(value); }
+    if (/(?:^|\s)(?:ya+r+o+|ya+r+u)(?=$|\s)/i.test(normalized)) handleVoice(value);
+    else { $("transcript").textContent = "Message received: “" + value + "”"; addLog("Tum", value); processCommand(value); }
   }
-  $("startBtn").addEventListener("click", startListening);
-  $("stopBtn").addEventListener("click", stopListening);
-  $("testBtn").addEventListener("click", () => speak("Haan Yashraj! Main Yaro hoon. Pehle Oye Yaro kaho, phir gaane ka naam bolo."));
+  $("startBtn").addEventListener("click", startListening); $("stopBtn").addEventListener("click", stopListening);
+  $("testBtn").addEventListener("click", () => speak("Haan Yashraj, main tumhari baat sun sakta hoon. Jo suna, screen par dikhata hoon."));
   $("textForm").addEventListener("submit", sendText);
   $("musicService").addEventListener("change", () => { if (musicTab && !musicTab.closed) { try { musicTab.location.href = musicHome(); } catch (_) { musicTab = null; } } });
-  $("speechLanguage").addEventListener("change", () => { if (listening && recognition) { try { recognition.stop(); } catch (_) {} setStatus("Language changed — restarting microphone..."); } });
+  $("speechLanguage").addEventListener("change", () => { if (listening && recognition) { try { recognition.lang = $("speechLanguage").value; recognition.stop(); } catch (_) {} setStatus("Language changed — restarting microphone..."); } });
   if (!Recognition) setStatus("Voice unavailable — use Chrome over HTTPS; text still works");
   if (!hasSpeech) addLog("System", "Speech output unsupported; replies will appear as text.");
 })();
