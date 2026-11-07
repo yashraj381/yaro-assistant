@@ -4,41 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#080d1c">
+<meta name="description" content="Yaro is a simple Hindi and Hinglish voice assistant.">
 <title>YARO Assistant</title>
 <style>
-:root{--bg:#080d1c;--panel:#111a30;--cyan:#54e7ff;--purple:#9874ff;--text:#eef5ff;--muted:#9eacc7}
+:root{color-scheme:dark;--bg:#080d1c;--panel:#111a30;--cyan:#54e7ff;--purple:#9874ff;--text:#eef5ff;--muted:#9eacc7}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 25%,#1b2850 0,#0b1226 38%,var(--bg) 75%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;display:flex;justify-content:center}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 25%,#1b2850 0,#0b1226 38%,var(--bg) 75%);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;justify-content:center}
 .app{width:min(100%,650px);padding:24px 18px 30px;display:flex;flex-direction:column;align-items:center;min-height:100vh}
-header{width:100%;display:flex;justify-content:space-between;align-items:center}
-.logo{font-weight:800;letter-spacing:4px;font-size:24px;color:var(--cyan)}
-.badge{font-size:12px;color:var(--muted);border:1px solid #293958;border-radius:20px;padding:7px 11px}
-h1{font-size:25px;margin:28px 0 4px}
-.subtitle{color:var(--muted);font-size:14px;text-align:center}
-.orb-wrap{position:relative;width:220px;height:220px;margin:34px auto 20px;display:grid;place-items:center}
-.orb{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#b7f7ff,#4bdcf8 22%,#4759ca 58%,#241c65 85%);box-shadow:0 0 28px #54e7ff77,0 0 75px #715cff55,inset -12px -15px 30px #15104b;transition:.3s}
-.orb:before,.orb:after{content:"";position:absolute;inset:12px;border:1px solid #65eaff66;border-radius:50%;animation:spin 9s linear infinite}
-.orb:after{inset:0;border-color:#9874ff55;animation-direction:reverse;animation-duration:14s}
-.listening .orb{animation:pulse 1.5s infinite}
-.speaking .orb{animation:pulse .55s infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{50%{transform:scale(1.09);filter:brightness(1.25)}}
-.status{font-size:15px;color:var(--cyan);min-height:24px;text-align:center}
-.transcript{width:100%;min-height:72px;margin:15px 0;background:#101a30bb;border:1px solid #263653;border-radius:16px;padding:14px;color:#dce8ff;text-align:center;line-height:1.5}
-.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:8px 0 18px}
-button{border:1px solid #344766;background:#172541;color:var(--text);padding:11px 16px;border-radius:12px;font-size:14px;font-weight:600}
-button.primary{background:linear-gradient(110deg,#177f9d,#5d55c7);border:0}
-button:active{transform:scale(.97)}
-.inputrow{display:flex;width:100%;gap:8px}
-input{min-width:0;flex:1;border:1px solid #344766;background:#0e172b;color:white;border-radius:12px;padding:13px;font-size:15px;outline:none}
-input:focus{border-color:var(--cyan)}
-.send{padding-inline:18px}
-.hint{color:var(--muted);font-size:12px;line-height:1.6;text-align:center;margin-top:18px}
-.log{width:100%;margin-top:18px;max-height:190px;overflow:auto}
-.msg{padding:10px 12px;margin:7px 0;border-radius:12px;background:#111b31;font-size:13px;line-height:1.45;overflow-wrap:anywhere}
-.msg b{color:var(--cyan)}
-footer{margin-top:auto;padding-top:24px;color:#667794;font-size:11px;text-align:center}
-@media(max-width:420px){.orb-wrap{margin-top:26px}.app{padding:18px 14px}}
+header{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px}.logo{font-weight:800;letter-spacing:4px;font-size:24px;color:var(--cyan)}
+.badge{font-size:12px;color:var(--muted);border:1px solid #293958;border-radius:20px;padding:7px 11px;text-align:center}
+h1{font-size:25px;margin:28px 0 4px}.subtitle{color:var(--muted);font-size:14px;text-align:center}
+.orb-wrap{position:relative;width:220px;height:220px;margin:34px auto 20px;display:grid;place-items:center}.orb{position:relative;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#b7f7ff,#4bdcf8 22%,#4759ca 58%,#241c65 85%);box-shadow:0 0 28px #54e7ff77,0 0 75px #715cff55,inset -12px -14px 28px #090d2b88}
+.orb:before,.orb:after{content:"";position:absolute;inset:-12px;border:1px solid #65eaff66;border-radius:50%;animation:spin 9s linear infinite}.orb:after{inset:-22px;border-color:#9874ff55;animation-direction:reverse;animation-duration:14s}
+.listening .orb{animation:pulse 1.5s infinite}.speaking .orb{animation:pulse .55s infinite}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{transform:scale(1.09);filter:brightness(1.25)}}
+.status{font-size:15px;color:var(--cyan);min-height:24px;text-align:center}.transcript{width:100%;min-height:72px;margin:15px 0;background:#101a30bb;border:1px solid #263653;border-radius:16px;padding:14px;color:#dce8ff;text-align:center;line-height:1.5;overflow-wrap:anywhere}
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:8px 0 18px}button{border:1px solid #344766;background:#172541;color:var(--text);padding:11px 16px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}button:active{transform:scale(.97)}button.primary{background:linear-gradient(110deg,#177f9d,#5d55c7);border:0}
+.inputrow{display:flex;width:100%;gap:8px}input{min-width:0;flex:1;border:1px solid #344766;background:#0e172b;color:white;border-radius:12px;padding:13px;font-size:16px;outline:none}input:focus{border-color:var(--cyan)}.send{padding-inline:18px}
+.hint{color:var(--muted);font-size:12px;line-height:1.7;text-align:center;margin-top:18px}.action{margin-top:10px;color:var(--cyan);font-size:14px}.action a{color:var(--cyan);overflow-wrap:anywhere}.log{width:100%;margin-top:18px;max-height:190px;overflow:auto}.msg{padding:10px 12px;margin:7px 0;border-radius:12px;background:#111b31;font-size:13px;line-height:1.45;overflow-wrap:anywhere}.msg b{color:var(--cyan)}footer{margin-top:auto;padding-top:24px;color:#667794;font-size:11px;text-align:center}
+@media(max-width:420px){.orb-wrap{margin-top:26px}.app{padding:18px 14px}.badge{font-size:10px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
@@ -46,158 +30,221 @@ footer{margin-top:auto;padding-top:24px;color:#667794;font-size:11px;text-align:
 <header><div class="logo">YARO</div><div class="badge">PERSONAL VOICE ASSISTANT</div></header>
 <h1>Namaste Yashraj!</h1>
 <div class="subtitle">Main Yaro hoon. Bolo, kya karna hai?</div>
-<div class="orb-wrap" id="orbWrap"><div class="orb"></div></div>
-<div class="status" id="status">Start dabao aur bolo: “Oye Yaro”</div>
-<div class="transcript" id="transcript">Main tumhari awaaz ka intezaar kar raha hoon.</div>
+<div class="orb-wrap" id="orbWrap" aria-hidden="true"><div class="orb"></div></div>
+<div class="status" id="status" role="status" aria-live="polite">Start dabao aur bolo: “Oye Yaro”</div>
+<div class="transcript" id="transcript" aria-live="polite">Main tumhari awaaz ka intezaar kar raha hoon.</div>
+<div class="action" id="action" hidden></div>
 <div class="controls">
-<button class="primary" id="startBtn">🎙️ Start Hands-Free</button>
-<button id="stopBtn">⏸ Stop Listening</button>
-<button id="testBtn">🔊 Voice Test</button>
+<button class="primary" id="startBtn" type="button">🎙️ Start Hands-Free</button>
+<button id="stopBtn" type="button">⏸ Stop Listening</button>
+<button id="testBtn" type="button">🔊 Voice Test</button>
 </div>
-<div class="inputrow">
-<input id="textInput" placeholder="Yaro ko message likho..." autocomplete="off">
-<button class="primary send" id="sendBtn">Send</button>
-</div>
-<div class="hint">
-Wake word: <b>“Oye Yaro”</b> · Example: “Oye Yaro, YouTube kholo”<br>
-“Spotify par Arijit Singh search karo” · “Google par photosynthesis search karo”<br>
-“So jao Yaro” bolkar listening band kar sakte ho.
-</div>
-<div class="log" id="log"></div>
+<form class="inputrow" id="textForm">
+<input id="textInput" placeholder="Yaro ko message likho..." autocomplete="off" aria-label="Message for Yaro">
+<button class="primary send" id="sendBtn" type="submit">Send</button>
+</form>
+<div class="hint">Wake word: <b>“Oye Yaro”</b> · Example: “Oye Yaro, YouTube kholo”<br>“Spotify par Arijit Singh search karo” · “Google par photosynthesis search karo”<br>“So jao Yaro” bolkar listening band kar sakte ho.</div>
+<div class="log" id="log" aria-live="polite"></div>
 <footer>YARO · Created for Yashraj Pawar</footer>
 </main>
 <script>
 (() => {
+  "use strict";
   const $ = id => document.getElementById(id);
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let recognition = null, listening = false, speaking = false, restarting = false;
-  let wakeMode = false, lastCommandAt = 0, restartTimer = null;
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const hasSpeech = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+  const WAKE_WINDOW_MS = 10000;
+  let recognition = null;
+  let listening = false;
+  let speaking = false;
+  let starting = false;
+  let restartTimer = null;
+  let wakeExpiresAt = 0;
+  let speechToken = 0;
+  let stopAfterSpeech = false;
 
-  function setStatus(text, mode="") {
+  function setStatus(text, mode = "") {
     $("status").textContent = text;
     $("orbWrap").className = "orb-wrap " + mode;
   }
   function addLog(who, text) {
     const div = document.createElement("div");
     div.className = "msg";
-    const b = document.createElement("b"); b.textContent = who + ": ";
-    div.append(b, document.createTextNode(text));
+    const label = document.createElement("b");
+    label.textContent = who + ": ";
+    div.append(label, document.createTextNode(text));
     $("log").prepend(div);
   }
-  function speak(text) {
-    if (!("speechSynthesis" in window)) {
-      $("transcript").textContent = text; return;
+  function showLink(url, label) {
+    const container = $("action");
+    container.replaceChildren();
+    const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = label || "Open result";
+    container.append(link);
+    container.hidden = false;
+  }
+  function clearLink() {
+    $("action").hidden = true;
+    $("action").replaceChildren();
+  }
+  function openUrl(url, label) {
+    // Voice events are often not treated as a browser user gesture, so popups may be blocked.
+    const opened = window.open(url, "_blank", "noopener,noreferrer");
+    if (!opened) showLink(url, label || "Tap here to open");
+  }
+  function finishSpeaking(token) {
+    if (token !== speechToken) return;
+    speaking = false;
+    if (stopAfterSpeech) {
+      stopAfterSpeech = false;
+      stopListening();
+      return;
     }
-    speaking = true;
-    try { recognition && recognition.stop(); } catch(e) {}
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "hi-IN"; utter.rate = 0.94; utter.pitch = 1;
-    utter.onstart = () => setStatus("Yaro bol raha hai...", "speaking");
-    utter.onend = () => {
-      speaking = false;
-      if (listening) {
-        setStatus('Listening... “Oye Yaro” bolo', "listening");
-        scheduleRestart(450);
-      } else setStatus("Ready");
-    };
-    utter.onerror = () => {
-      speaking = false;
-      if (listening) scheduleRestart(500);
-    };
-    window.speechSynthesis.speak(utter);
+    if (listening) {
+      setStatus('Listening... “Oye Yaro” bolo', "listening");
+      scheduleRestart(500);
+    } else setStatus("Ready");
+  }
+  function speak(text) {
     $("transcript").textContent = text;
     addLog("Yaro", text);
-  }
-  function scheduleRestart(delay=700) {
-    if (!listening || speaking || restarting) return;
-    restarting = true;
+    if (!hasSpeech) {
+      setStatus("Text response (speech output unsupported)");
+      return;
+    }
+    const token = ++speechToken;
+    speaking = true;
     clearTimeout(restartTimer);
+    try { if (recognition) recognition.stop(); } catch (_) {}
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "hi-IN";
+    utterance.rate = 0.94;
+    utterance.pitch = 1;
+    utterance.onstart = () => {
+      if (token === speechToken) setStatus("Yaro bol raha hai...", "speaking");
+    };
+    utterance.onend = () => finishSpeaking(token);
+    utterance.onerror = () => finishSpeaking(token);
+    window.speechSynthesis.speak(utterance);
+  }
+  function scheduleRestart(delay = 700) {
+    clearTimeout(restartTimer);
+    if (!listening || speaking || starting) return;
     restartTimer = setTimeout(() => {
-      restarting = false;
-      try { recognition && recognition.start(); } catch(e) {}
+      if (!listening || speaking || !recognition) return;
+      starting = true;
+      try { recognition.start(); }
+      catch (_) { starting = false; scheduleRestart(1200); }
     }, delay);
   }
   function startListening() {
-    if (!SpeechRecognition) {
-      setStatus("Speech recognition supported nahi hai");
-      speak("Is browser mein voice recognition support nahi hai. Kripya Android Chrome mein page kholkar dekho.");
+    if (!Recognition) {
+      setStatus("Voice recognition is not available in this browser");
+      addLog("System", "Try a supported browser (such as Chrome) over HTTPS, and allow microphone access.");
       return;
     }
     if (listening) return;
-    recognition = new SpeechRecognition();
+    clearTimeout(restartTimer);
+    recognition = new Recognition();
     recognition.lang = "hi-IN";
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
     recognition.onstart = () => {
-      restarting = false;
+      starting = false;
       setStatus('Listening... “Oye Yaro” bolo', "listening");
     };
     recognition.onresult = event => {
-      let finalText = "";
       let interim = "";
-      for (let i=event.resultIndex; i<event.results.length; i++) {
-        const t = event.results[i][0].transcript.trim();
-        if (event.results[i].isFinal) finalText += " " + t;
-        else interim += " " + t;
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        const phrase = result[0].transcript.trim();
+        if (result.isFinal && phrase) handleVoice(phrase);
+        else if (phrase) interim += " " + phrase;
       }
       if (interim.trim()) $("transcript").textContent = interim.trim();
-      if (finalText.trim()) handleVoice(finalText.trim());
     };
     recognition.onerror = event => {
+      starting = false;
       if (event.error === "not-allowed" || event.error === "service-not-allowed") {
         listening = false;
+        clearTimeout(restartTimer);
         setStatus("Microphone permission allow karo");
-        addLog("System", "Microphone permission required.");
+        addLog("System", "Microphone permission was denied. Allow it in your browser's site settings, then press Start.");
+      } else if (event.error === "audio-capture") {
+        addLog("System", "No microphone was found or it is unavailable.");
+      } else if (event.error !== "aborted" && event.error !== "no-speech") {
+        addLog("System", "Speech recognition error: " + event.error);
       }
     };
     recognition.onend = () => {
-      restarting = false;
+      starting = false;
       if (listening && !speaking) scheduleRestart(650);
     };
     listening = true;
+    starting = true;
     try { recognition.start(); }
-    catch(e) { scheduleRestart(1000); }
+    catch (_) { starting = false; scheduleRestart(1200); }
   }
   function stopListening() {
-    listening = false; wakeMode = false;
+    listening = false;
+    starting = false;
+    wakeExpiresAt = 0;
+    stopAfterSpeech = false;
     clearTimeout(restartTimer);
-    try { recognition && recognition.stop(); } catch(e) {}
-    window.speechSynthesis.cancel();
+    if (hasSpeech) window.speechSynthesis.cancel();
     speaking = false;
+    ++speechToken;
+    try { if (recognition) recognition.stop(); } catch (_) {}
     setStatus("Listening band hai");
   }
-  function normalize(s) {
-    return s.toLowerCase().replace(/[.,!?।]/g," ").replace(/\s+/g," ").trim();
+  function normalize(value) {
+    return value.toLocaleLowerCase("hi-IN").replace(/[.,!?।]/g, " ").replace(/\s+/g, " ").trim();
+  }
+  function extractWakeCommand(text) {
+    const match = text.match(/(?:oye|o y|hey|hello)\s*yaro?\b/i);
+    if (!match) return null;
+    wakeExpiresAt = Date.now() + WAKE_WINDOW_MS;
+    return text.slice(match.index + match[0].length).trim();
   }
   function handleVoice(raw) {
     const text = normalize(raw);
     if (!text) return;
     $("transcript").textContent = raw;
     addLog("Tum", raw);
-    if (/(so jao yaro|band ho jao yaro|stop listening|listening band)/.test(text)) {
+    if (/(so jao yaro|band ho jao yaro|stop listening|listening band)/i.test(text)) {
+      stopAfterSpeech = true;
       speak("Theek hai Yashraj, main abhi ke liye sunna band kar raha hoon.");
-      setTimeout(stopListening, 1800);
+      // Some speech engines never fire onend; don't leave recognition running forever.
+      setTimeout(() => { if (stopAfterSpeech) stopListening(); }, 5000);
       return;
     }
-    const wakeMatch = text.match(/(?:oye|o y|hey|hello)\s*yaro?\b/i);
-    if (!wakeMode && !wakeMatch) return;
-    let command = text;
-    if (wakeMatch) {
-      wakeMode = true;
-      command = text.replace(/.*?(?:oye|o y|hey|hello)\s*yaro?\b/i,"").trim();
-      if (!command) { speak("Haan Yashraj, bolo!"); return; }
+    const commandFromWake = extractWakeCommand(text);
+    if (commandFromWake !== null) {
+      if (!commandFromWake) { speak("Haan Yashraj, bolo!"); return; }
+      processCommand(commandFromWake);
+      return;
     }
-    lastCommandAt = Date.now();
-    processCommand(command);
+    if (Date.now() <= wakeExpiresAt) {
+      wakeExpiresAt = 0;
+      processCommand(text);
+    }
   }
-  function openUrl(url) {
-    window.open(url, "_blank", "noopener");
+  function searchUrl(engine, query) {
+    const encoded = encodeURIComponent(query.trim());
+    if (engine === "youtube") return "https://www.youtube.com/results?search_query=" + encoded;
+    if (engine === "spotify") return "https://open.spotify.com/search/" + encoded;
+    if (engine === "wikipedia") return "https://hi.wikipedia.org/w/index.php?search=" + encoded;
+    return "https://www.google.com/search?q=" + encoded;
   }
   function processCommand(command) {
-    const q = command.replace(/^(please|zara|yaro)\s+/,"").trim();
+    const q = normalize(command).replace(/^(please|zara|yaro)\s+/, "").trim();
     if (!q) { speak("Haan Yashraj, bolo."); return; }
+    clearLink();
 
     if (/(mera naam|who am i|main kaun)/.test(q)) {
       speak("Tum Yashraj Pawar ho, aur tumne mujhe Yaro banaya hai."); return;
@@ -205,78 +252,68 @@ Wake word: <b>“Oye Yaro”</b> · Example: “Oye Yaro, YouTube kholo”<br>
     if (/(tumhe kisne banaya|kisne banaya|creator|who made you)/.test(q)) {
       speak("Mujhe Yashraj Pawar ne banaya hai."); return;
     }
-    if (/(youtube kholo|open youtube|youtube open)/.test(q)) {
-      openUrl("https://www.youtube.com/"); speak("YouTube khol raha hoon."); return;
+    if (/(time kya|kitne baje|samay kya|what time)/.test(q)) {
+      speak("Abhi " + new Date().toLocaleTimeString("hi-IN", {hour:"2-digit", minute:"2-digit"}) + " baj rahe hain."); return;
     }
-    let yt = q.match(/youtube par (.+?) (?:search karo|dhundo|dhoondo|chalao|play karo)/);
-    if (!yt) yt = q.match(/(?:youtube|यूट्यूब) (?:par )?(.+?) (?:search|dhundo|dhoondo|chalao|play)/);
-    if (yt) {
-      openUrl("https://www.youtube.com/results?search_query="+encodeURIComponent(yt[1]));
-      speak("YouTube par "+yt[1]+" search kar raha hoon."); return;
+    if (/(aaj ki date|date kya|aaj kaun si date|today.?s date)/.test(q)) {
+      speak("Aaj " + new Date().toLocaleDateString("hi-IN", {day:"numeric", month:"long", year:"numeric"}) + " hai."); return;
+    }
+    if (/(youtube kholo|open youtube|youtube open)/.test(q)) {
+      openUrl("https://www.youtube.com/", "YouTube kholo"); speak("YouTube khol raha hoon."); return;
     }
     if (/(spotify kholo|open spotify|spotify open)/.test(q)) {
-      openUrl("https://open.spotify.com/"); speak("Spotify khol raha hoon."); return;
-    }
-    let sp = q.match(/spotify par (.+?) (?:search karo|dhundo|dhoondo|chalao|play karo)/);
-    if (!sp) sp = q.match(/(?:spotify|स्पॉटिफाई) (?:par )?(.+?) (?:search|dhundo|dhoondo|chalao|play)/);
-    if (sp) {
-      openUrl("https://open.spotify.com/search/"+encodeURIComponent(sp[1]));
-      speak("Spotify par "+sp[1]+" search kar raha hoon."); return;
-    }
-    let google = q.match(/(?:google|internet|web) par (.+?) (?:search karo|dhundo|dhoondo)/);
-    if (google) {
-      openUrl("https://www.google.com/search?q="+encodeURIComponent(google[1]));
-      speak("Google par "+google[1]+" search kar raha hoon."); return;
+      openUrl("https://open.spotify.com/", "Spotify kholo"); speak("Spotify khol raha hoon."); return;
     }
     if (/(google kholo|open google)/.test(q)) {
-      openUrl("https://www.google.com/"); speak("Google khol raha hoon."); return;
+      openUrl("https://www.google.com/", "Google kholo"); speak("Google khol raha hoon."); return;
     }
-    if (/(time kya|kitne baje|samay kya)/.test(q)) {
-      speak("Abhi "+new Date().toLocaleTimeString("hi-IN",{hour:"2-digit",minute:"2-digit"})+" baj rahe hain."); return;
+
+    const patterns = [
+      {engine:"youtube", pattern:/(?:youtube|यूट्यूब)(?:\s+par)?\s+(.+?)\s+(?:search(?:\s+karo)?|dhundo|dhoondo|chalao|play(?:\s+karo)?)/i},
+      {engine:"spotify", pattern:/(?:spotify|स्पॉटिफाई)(?:\s+par)?\s+(.+?)\s+(?:search(?:\s+karo)?|dhundo|dhoondo|chalao|play(?:\s+karo)?)/i},
+      {engine:"google", pattern:/(?:google|internet|web)\s+par\s+(.+?)\s+(?:search(?:\s+karo)?|dhundo|dhoondo)/i},
+      {engine:"wikipedia", pattern:/(?:wikipedia|wiki)\s+(?:par\s+)?(.+?)(?:\s+(?:kya\s+hai|kaun\s+hai|search(?:\s+karo)?))?$/i}
+    ];
+    for (const item of patterns) {
+      const match = q.match(item.pattern);
+      if (match && match[1].trim()) {
+        const topic = match[1].trim();
+        openUrl(searchUrl(item.engine, topic), "Search " + topic);
+        speak((item.engine === "google" ? "Google" : item.engine === "wikipedia" ? "Wikipedia" : item.engine) + " par " + topic + " search kar raha hoon.");
+        return;
+      }
     }
-    if (/(aaj ki date|date kya|aaj kaun si date)/.test(q)) {
-      speak("Aaj "+new Date().toLocaleDateString("hi-IN",{day:"numeric",month:"long",year:"numeric"})+" hai."); return;
+    if (/(kya hai|kaun hai|ke baare mein|samjhao|batao)/.test(q)) {
+      const topic = q.replace(/(?:mujhe|please|zara|wikipedia|wiki|kya hai|kaun hai|ke baare mein|samjhao|batao)/g, " ").trim();
+      if (topic) {
+        openUrl(searchUrl("wikipedia", topic), "Wikipedia par “" + topic + "” dekho");
+        speak("Iska jawab dhoondhne ke liye Wikipedia search khol raha hoon.");
+        return;
+      }
     }
-    if (/(wikipedia|wiki)/.test(q) || /(kya hai|kaun hai|ke baare mein|samjhao)/.test(q)) {
-      const topic = q.replace(/wikipedia|wiki|kya hai|kaun hai|ke baare mein|samjhao|batao|mujhe/gi,"").trim();
-      if (topic) { wikiSearch(topic); return; }
-    }
-    openUrl("https://www.google.com/search?q="+encodeURIComponent(q));
+    openUrl(searchUrl("google", q), "Google par “" + q + "” search karo");
     speak("Mujhe iska jawab dhoondhne ke liye Google search khol raha hoon.");
   }
-  async function wikiSearch(topic) {
-    speak(topic+" ke baare mein Wikipedia par dekh raha hoon.");
-    try {
-      const url = "https://hi.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(topic.replace(/\s+/g,"_"));
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("No result");
-      const data = await res.json();
-      const answer = data.extract;
-      if (answer) speak(answer.length > 480 ? answer.slice(0,477)+"..." : answer);
-      else throw new Error("No summary");
-    } catch(e) {
-      openUrl("https://www.google.com/search?q="+encodeURIComponent(topic));
-      speak("Wikipedia par seedha jawab nahi mila. Google par search khol raha hoon.");
+  function sendText(event) {
+    event.preventDefault();
+    const value = $("textInput").value.trim();
+    if (!value) return;
+    $("textInput").value = "";
+    // Handle through the same path as voice so the message is logged exactly once.
+    const text = normalize(value);
+    if (/^(oye|o y|hey|hello)\s*yaro?\b/i.test(text)) handleVoice(value);
+    else {
+      $("transcript").textContent = value;
+      addLog("Tum", value);
+      processCommand(value);
     }
   }
-  $("startBtn").addEventListener("click", () => {
-    startListening();
-    $("transcript").textContent = "Listening shuru. Bolo: Oye Yaro!";
-  });
+  $("startBtn").addEventListener("click", startListening);
   $("stopBtn").addEventListener("click", stopListening);
   $("testBtn").addEventListener("click", () => speak("Haan Yashraj! Main Yaro hoon. Main tumhari awaaz sun sakta hoon."));
-  function sendText() {
-    const v = $("textInput").value.trim();
-    if (!v) return;
-    $("textInput").value = "";
-    addLog("Tum",v);
-    const n = normalize(v);
-    if (/^(oye|hey|hello)\s*yaro/.test(n)) handleVoice(v);
-    else { wakeMode = true; processCommand(n); }
-  }
-  $("sendBtn").addEventListener("click",sendText);
-  $("textInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendText();});
-  if (!SpeechRecognition) setStatus("Voice ke liye Android Chrome try karo");
+  $("textForm").addEventListener("submit", sendText);
+  if (!Recognition) setStatus("Voice ke liye supported browser aur HTTPS try karo");
+  if (!hasSpeech) addLog("System", "This browser cannot speak responses aloud; text replies will still work.");
 })();
 </script>
 </body>
